@@ -1,0 +1,97 @@
+{% extends "admin/businessmodel/base.html" %}
+{% load i18n static %}
+
+
+{% block content %}
+
+
+
+<div class="container">
+    <div class="results-card">
+<div class="header-container">
+    <div class="header-content">
+        <h4 class="header-title"><i class="fa-solid fa-tag"></i> Detalle de Venta: N.- {{ venta.id }}</h4>
+       <p class="header-date"><i class="fa-regular fa-clock"></i>{{ venta.fecha|date:"d/m/Y" }} - {{ venta.hora|date:"H:i" }}</p> 
+        <div>
+            
+
+        </div>
+    </div>
+</div>
+
+<!-- Sección 1: Información del Cliente -->
+<div class="info-section">
+    <h5>Información del Cliente</h5>
+    <table class="info-table">
+        <tbody>
+            <tr>
+                <th class="info-name"><i class="fa-solid fa-user"></i> Nombre de Cliente</th>
+                <td class="info-value">{{ venta.first_name }} {{ venta.last_name }}</td>
+            </tr>
+     
+            <tr>
+                <th class="info-name"> <i class="fa-regular fa-envelope"></i> Correo Electrónico</th>
+                <td class="info-value">{{ venta.email }}</td>
+            </tr>
+            <tr>
+                <th class="info-name"> <i class="fa-solid fa-map-location-dot"></i> Dirección</th>
+                <td class="info-value">{{ venta.address }}</td>
+            </tr>
+            <tr>
+                <th class="info-name"><i class="fa-solid fa-mountain-city"></i> Ciudad</th>
+                <td class="info-value">{{ venta.city }}</td>
+            </tr>
+            <tr>
+                <th class="info-name"><i class="fa-solid fa-phone"></i> Telefono de contacto</th>
+                <td class="info-value">{{ venta.phone }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- Sección 3: Información de los Montos de Venta -->
+<div class="info-section">
+    <h5>Información de los Montos de Venta</h5>
+    <table class="info-table">
+        <tbody>
+            <tr>
+                <th class="info-name">Descuentos</th>
+                <td class="info-value">$ {{ venta.descuentos|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">Devoluciones</th>
+                <td class="info-value">$ {{ venta.devoluciones|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">Sub Total</th>
+                <td class="info-value">$ {{ venta.Sub_total|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">I.V.A. (%)</th>
+                <td class="info-value">{{ venta.iva_porcentaje }} %</td>
+            </tr>
+            <tr>
+                <th class="info-name">Valor I.V.A.</th>
+                <td class="info-value">$ {{ venta.Valor_Iva|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">Total a Pagar</th>
+                <td class="info-value">$ {{ venta.total_a_pagar|floatformat:2 }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="object-tools">
+        <li>
+            <a href="{% url 'businessmodel:admin_comprobante_pdf' venta_id=venta.id %}">Imprimir</a>
+        </li>
+    </ul>
+
+</div>
+
+</div>
+</div>
+
+{% endblock %}

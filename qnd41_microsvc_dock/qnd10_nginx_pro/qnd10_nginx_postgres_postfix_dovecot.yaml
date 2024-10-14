@@ -1,0 +1,135 @@
+version: "3.3"
+
+services:
+  qnd41app:
+    image: smartquail/qnd41app:latest
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+    env_file:
+      - .env_stage
+    depends_on:
+      - smartquaildb
+    expose:
+      - 9000
+    ports:
+      - "9000:9000"
+    volumes:
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/static
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/staticfiles
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/media
+    networks:
+      - lansmartquail
+
+  smartquaildb:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    restart: always
+    command: -p 5432
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    volumes:
+      - smartquaildb_data-qnd41:/var/lib/postgresql/data/
+    networks:
+      - lansmartquail
+
+  nginx:
+    image: smartquail/qnd41_nginx:prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=80
+    depends_on:
+      - qnd41app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/static
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/staticfiles
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/media
+      - certbot-web_2:/vol/www
+      - proxy-dhparams_2:/vol/proxy
+      - letsencrypt_certs:/etc/letsencrypt
+    networks:
+      - lansmartquail
+
+  
+  postfix:
+    image: smartquail/qnd10postfix:prod
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+      - dovecot
+    expose:
+      - "25"
+    ports:
+      - "25:25"
+    volumes:
+      - postfix-spools:/var/spool/postfix
+      - postfix-mail:/var/mail
+      - postfix-logs:/var/log
+    networks:
+      - lansmartquail
+    
+
+  dovecot:
+    image: smartquail/qnd10dovecot:prod
+    container_name: dovecot
+    restart: always
+    volumes:
+      - dovecot:/etc/dovecot
+      - mail:/var/mail
+      - postfix-spools:/var/spool/postfix
+    ports:
+      - "143:143"   # IMAP
+      - "110:110"   # POP3
+      - "993:993"   # IMAPS (secure IMAP)
+      - "995:995"   # POP3S (secure POP3)
+    environment:
+      - DOVECOT_USER=info
+      - DOVECOT_PASSWORD=ms95355672
+      - DOVECOT_AUTH_SOCKET_PATH=/var/spool/postfix/private/auth
+    networks:
+      - lansmartquail
+
+
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: info@mail.smartquail.io  # Correo electrónico de administrador de PGAdmin
+      PGADMIN_DEFAULT_PASSWORD: sqdatabaseadmin          # Contraseña de administrador de PGAdmin
+      PGADMIN_LISTEN_PORT: 80                  # Puerto de escucha de PGAdmin
+    ports:
+      - "5050:80"  # Puerto de PGAdmin accesible desde fuera del contenedor
+    depends_on:
+      - smartquaildb
+    networks:
+      - lansmartquail
+
+volumes:
+  certbot-web_2:
+  proxy-dhparams_2:
+  letsencrypt_certs:
+  static-data-qnd41:
+  smartquaildb_data-qnd41:
+  postfix-spools:
+  postfix-mail:
+  postfix-logs:
+  dovecot:
+  mail:
+
+
+networks:
+  lansmartquail:
+    driver: bridge

@@ -1,0 +1,169 @@
+{% extends "admin/businessmodel/Sales/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+
+{% block content %}
+
+{% include 'admin/businessmodel/Sales/header.html' %}
+
+
+            <div id="wrapper">
+                <!--content -->	
+                <div class="content full-height">
+                    <!--home-main_container-->	
+                    <div class="home-main_container">
+                        <!--follow-wrap-->
+                        
+                        <!--follow-wrap end-->
+                        <div class="full-height fl-wrap hidden-item">
+                            <!--fs-slider-wrap-->	
+                            <div class="fs-slider-wrap full-height fl-wrap">
+                                <div class="fs-slider lightgallery full-height fl-wrap" data-mousecontrol2="true">
+                                    <div class="swiper-container">
+                                        <div class="swiper-wrapper" >  
+                                            <!-- swiper-slide-->
+                                            <div class="swiper-slide hov_zoom">
+                                                <div class="fs-slider-item fl-wrap">               
+                                                    <div class="bg"  data-bg="{% static '/img/test2.png' %}"></div>
+                                                  
+                                                    <div class="overlay"></div>
+                                                    
+                                        
+                                                </div>
+                                            </div>
+                                            <!-- swiper-slide-->
+                                            <!-- swiper-slide-->
+                                            <div class="swiper-slide hov_zoom">
+                                                <div class="fs-slider-item fl-wrap">
+                                                   
+                                                    <div class="bg"  data-bg="{% static '/img/test3.jpg' %}"></div>
+                                                    <div class="overlay"></div>
+                                                    <a href="#" class="box-media-zoom   popup-image"><i class="fal fa-search"></i></a>
+                                                </div>
+                                            </div>
+                              
+                                        <!-- swiper-slide-->
+                                        <!-- swiper-slide-->
+
+
+
+
+
+
+
+
+       
+
+                           
+                                        </div>
+                                 
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- fs-slider-wrap end-->
+                          
+                            <!-- home-slider-counter-wrap-->
+                           
+                            <!-- home-slider-counter-wrap end-->
+                        </div>
+                    </div>
+                    <!--home-main_container end-->
+                </div>
+                <!--content end-->	
+                <!--share-wrapper-->
+                <div class="share-wrapper">
+                    <div class="share-container fl-wrap  isShare"></div>
+                </div>
+                <!--share-wrapper end-->
+            </div>
+            <!-- wrapper end -->
+            <!-- sidebar -->
+
+            <div class="sb-overlay"></div>
+            <div class="hiiden-sidebar-wrap outsb">
+                <!-- sb-widget-wrap-->
+                <div class="sb-widget-wrap fl-wrap">
+                    <h3>LEAVE YOUR COMMENTS</h3>
+                    <div class="sb-widget  fl-wrap">
+                        <p> Let me know, what you think about my work. I will contact to you soon.  </p>
+                        <div class="column-wrapper_item fl-wrap">
+                            <div class="column-wrapper_text fl-wrap">
+                                <div id="contact-form" class="fl-wrap">
+                                    <div id="message"></div>
+                                    <form action="#" method="POST" novalidate class="custom-form" action="php/contact.php" name="contactform" >
+                                        <fieldset>
+                                          
+                                                {% csrf_token %}
+                                                {% for hidden_field in form.hidden_fields %}
+                                                  {{ hidden_field }}
+                                                {% endfor %}
+                                              
+                                                {% if form.non_field_errors %}
+                                                  <div class="alert alert-danger" role="alert">
+                                                    {% for error in form.non_field_errors %}
+                                                      {{ error }}
+                                                    {% endfor %}
+                                                  </div>
+                                                {% endif %}
+                                              
+                                                {% for field in form.visible_fields %}
+                                                  <div class="form-group">
+                                                    {{ field.label_tag }}
+                                              
+                                                    {% if form.is_bound %}
+                                                      {% if field.errors %}
+                                                        {% render_field field class="form-control is-invalid" %}
+                                                        {% for error in field.errors %}
+                                                          <div class="invalid-feedback">
+                                                            {{ error }}
+                                                          </div>
+                                                        {% endfor %}
+                                                      {% else %}
+                                                        {% render_field field class="form-control is-valid" %}
+                                                      {% endif %}
+                                                    {% else %}
+                                                      {% render_field field class="form-control" %}
+                                                    {% endif %}
+                                              
+                                                    {% if field.help_text %}
+                                                      <small class="form-text text-muted" placeholder="Your Email">{{ field.help_text }}</small>
+                                                    {% endif %}
+                                                  </div>
+                                                  
+                                                {% endfor %}  
+                                        </fieldset>
+                                        <button type="submit" id="subscribe-button" class="subscribe-button">Submit</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+                <!-- sb-widget-wrap end--> 
+                <!-- sb-widget-wrap-->
+                <div class="sb-widget-wrap fl-wrap">
+                    <h3>I'm a Social</h3>
+                    <div class="sb-widget    fl-wrap">
+                        <div class="sidebar-social fl-wrap">
+                            <ul>
+                                <li><a href="https://api.whatsapp.com/send?phone=593984534954" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                                <li><a href="mailto:info@juansilvaphoto.com" target="_blank"><i class="fa fa-envelope"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- sb-widget-wrap end-->                                   
+                <!-- sb-widget-wrap-->
+                <div class="sb-widget-wrap fl-wrap">
+                    <div class="sb-widget  fl-wrap">
+                        <a href="#" target="_blank" class="twitt_btn fl-wrap">Follow Us</a>
+                    </div>
+                </div>
+                {% include 'admin/businessmodel/Sales/footer.html' %}
+                <!-- sb-widget-wrap end-->    
+            </div>
+           
+       
+ {% endblock %}

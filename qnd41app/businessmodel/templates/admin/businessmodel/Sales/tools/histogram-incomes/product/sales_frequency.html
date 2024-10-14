@@ -1,0 +1,368 @@
+{% extends "admin/businessmodel/Sales/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+
+{% include 'admin/businessmodel/Sales/tools/distributions-incomes/header_distribution.html' %}
+
+
+
+<div id="wrapper">
+    <div class="content full-height">
+        <div class="home-main_container">
+            
+            <div class="full-height fl-wrap hidden-item">
+                <div class="results-card">
+                    <!-- Filtros -->
+            
+
+                    <!-- Pestañas -->
+                    <div class="tabs">
+                        <a class="tab-button" href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <h3>Incomes Frequency for Amounts</h3>
+                        </a>
+                        <a class="tab-button active" href="{% url 'businessmodel:income_histogram_product' venta_id=venta.id %}">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <h3>Incomes Frequency for Product</h3>
+                        </a>
+
+                        <a class="tab-button" href="{% url 'businessmodel:income_histogram_category' venta_id=venta.id %}">
+                            <i class="fa-solid fa-chart-simple"></i>
+                            <h3>Incomes Frequency for Product Category</h3>
+                        </a>
+
+                    </div>
+
+                    <!-- Contenido de las pestañas -->
+            <div id="distributionIncomes" class="tab-content active">
+
+              
+
+                        <div class="chart-container">
+                         {% if grafico_productos %}
+                        <img src="data:image/png;base64,{{ grafico_productos }}" class="responsive-img" alt="Gráfico de Ventas" />
+                         {% else %}
+                        <p>No hay datos para mostrar.</p>
+                         {% endif %}
+                         </div>
+                   
+            </div>
+               
+
+                    <div id="distributionProducts" class="tab-content">
+                        
+                        <table id="result_list" class="info-table">
+                                <thead>
+                                    <tr>
+                                        <th>Parámetros</th>
+                                        <th>Analizados</th>
+                                        <th>Totales</th>
+                                        <th>(%) Analizado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Cantidad de tickets</td>
+                                        <td>{{ cantidad_ventas }}</td>
+                                        <td>{{ cantidad_neta_ventas|floatformat:0 }}</td>
+                                        <td>
+                                            ({{ porcentaje_cantidad_ventas|floatformat:0 }}%) 
+                                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                    {% if porcentaje_cantidad_ventas < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_cantidad_ventas < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_cantidad_ventas < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_cantidad_ventas == 100 %}
+                                                        <div style="background-color: green; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% else %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monto total de venta</td>
+                                        <td>$ {{ venta_total|floatformat:2 }}</td>
+                                        <td>$ {{ total_monto_neto|floatformat:2 }}</td>
+                                        <td>({{ porcentaje_monto_ventas|floatformat:0 }}%)
+                                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                    {% if porcentaje_monto_ventas < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_monto_ventas < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_monto_ventas < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_monto_ventas == 100 %}
+                                                        <div style="background-color: green; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% else %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Monto de I.V.A (15%)</td>
+                                        <td>$ {{ quince_por_ciento|floatformat:2 }}</td>
+                                        <td>$ {{ total_monto_iva_neto|floatformat:2 }}</td>
+                                        <td>({{ porcentaje_iva_ventas|floatformat:0 }}%)
+                                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                    {% if porcentaje_iva_ventas < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_iva_ventas < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_iva_ventas < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_iva_ventas == 100 %}
+                                                        <div style="background-color: green; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% else %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Promedio de ventas</td>
+                                        <td>$ {{ promedio_venta|floatformat:2 }}</td>
+                                        <td>$ {{ promedio_total_venta|floatformat:2 }}</td>
+                                        <td>({{ porcentaje_promedio_venta|floatformat:0 }}%)
+                                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                    {% if porcentaje_promedio_venta < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_venta < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_venta < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_venta == 100 %}
+                                                        <div style="background-color: green; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% else %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Margen Bruto</td>
+                                        <td>$ {{ sub_total_variable_cost|floatformat:2 }}</td>
+                                        <td>$ {{ promedio_total_venta|floatformat:2 }}</td>
+                                        <td>({{ porcentaje_promedio_venta|floatformat:0 }}%)
+                                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                    {% if porcentaje_promedio_venta < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_venta < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_venta < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_venta == 100 %}
+                                                        <div style="background-color: green; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% else %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td>Crecimiento/Decremento</td>
+                                        {% if numero_maximos > numero_minimos %}
+                                            <td>
+                                                Aumento: ({{ rapidez|floatformat:0 }}%)
+                                                <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                    <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                        {% if rapidez < 30 %}
+                                                            <div style="background-color: #b80b0b; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% elif rapidez < 60 %}
+                                                            <div style="background-color: orange; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% elif rapidez < 100 %}
+                                                            <div style="background-color: blue; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% elif rapidez == 100 %}
+                                                            <div style="background-color: green; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% else %}
+                                                            <div style="background-color: #b80b0b; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        {% elif numero_minimos > numero_maximos %}
+                                            <td>
+                                                Disminución: ({{ rapidez_d|floatformat:0 }}%)
+                                                <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                    <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                        {% if rapidez_d < 30 %}
+                                                            <div style="background-color: #b80b0b; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% elif rapidez_d < 60 %}
+                                                            <div style="background-color: orange; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% elif rapidez_d < 100 %}
+                                                            <div style="background-color: blue; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% elif rapidez_d == 100 %}
+                                                            <div style="background-color: green; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% else %}
+                                                            <div style="background-color: #b80b0b; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        {% else %}
+                                            <td>No hay cambios significativos</td>
+                                        {% endif %}
+                                    </tr>
+                                    <tr>
+                                        <td>Ingresos Operativos</td>
+                                        <td>${{ total_monto|floatformat:2 }}</td>
+                                        <td>$ {{ total_monto_neto|floatformat:2 }}</td>
+                                        <td>({{ porcentaje_promedio_ingresos|floatformat:2 }}%)
+                                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                    {% if porcentaje_promedio_ingresos < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_ingresos < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_ingresos < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio_ingresos == 100 %}
+                                                        <div style="background-color: rgb(70, 220, 70); width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% else %}
+                                                        <div style="background-color: #9de130; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                     
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="share-wrapper">
+        <div class="share-container fl-wrap isShare"></div>
+    </div>
+</div>
+
+<div class="sb-overlay"></div>
+<div class="hiiden-sidebar-wrap outsb">
+    <div class="sb-widget-wrap fl-wrap">
+        <h3>LEAVE YOUR COMMENTS</h3>
+        <div class="sb-widget fl-wrap">
+            <p> Let me know, what you think about my work. I will contact you soon. </p>
+            <div class="column-wrapper_item fl-wrap">
+                <div class="column-wrapper_text fl-wrap">
+                    <div id="contact-form" class="fl-wrap">
+                        <div id="message"></div>
+                        <form action="#" method="POST" novalidate class="custom-form" action="php/contact.php" name="contactform">
+                            <fieldset>
+                                {% csrf_token %}
+                                {% for hidden_field in form.hidden_fields %}
+                                {{ hidden_field }}
+                                {% endfor %}
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% for field in form.visible_fields %}
+                                <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {% if form.is_bound %}
+                                    {% if field.errors %}
+                                    {% render_field field class="form-control is-invalid" %}
+                                    {% for error in field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ error }}
+                                    </div>
+                                    {% endfor %}
+                                    {% else %}
+                                    {% render_field field class="form-control is-valid" %}
+                                    {% endif %}
+                                    {% else %}
+                                    {% render_field field class="form-control" %}
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                    <small class="form-text text-muted" placeholder="Your Email">{{ field.help_text }}</small>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </fieldset>
+                        </form>
+                        <button type="submit" id="subscribe-button" class="subscribe-button">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sb-widget-wrap fl-wrap">
+        <h3>I'm a Social</h3>
+        <div class="sb-widget fl-wrap">
+            <div class="sidebar-social fl-wrap">
+                <ul>
+                    <li><a href="https://api.whatsapp.com/send?phone=593984534954" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                    <li><a href="mailto:info@juansilvaphoto.com" target="_blank"><i class="fa fa-envelope"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="sb-widget-wrap fl-wrap">
+        <div class="sb-widget fl-wrap">
+            <a href="#" target="_blank" class="twitt_btn fl-wrap">Follow Us</a>
+        </div>
+    </div>
+    {% include 'admin/businessmodel/Sales/footer.html' %}
+</div>
+
+<script>
+
+
+
+
+    function openTab(event, tabName) {
+        var i, tabcontent, tabbuttons;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        event.currentTarget.classList.add("active");
+    }
+
+    function redirectToPDF(event) {
+    event.preventDefault(); // Evita el envío normal del formulario
+
+    // Obtén los valores del formulario
+    const fechaInicio = document.getElementById('id_fecha_inicio').value;
+    const horaInicio = document.getElementById('id_hora_inicio').value;
+    const fechaFin = document.getElementById('id_fecha_fin').value;
+    const horaFin = document.getElementById('id_hora_fin').value;
+
+    // Construye la URL del PDF, ajusta según tu ruta
+    const url = `{% url 'businessmodel:metricas_ventas_comprobante' venta_id=venta.id %}?fecha_inicio=${fechaInicio}&hora_inicio=${horaInicio}&fecha_fin=${fechaFin}&hora_fin=${horaFin}`;
+
+    // Redirige a la URL construida
+    window.location.href = url;
+}
+</script>
+
+{% endblock %}

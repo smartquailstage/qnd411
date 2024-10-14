@@ -1,0 +1,110 @@
+{% load widget_tweaks %}
+{% load static %}
+{% load menu_tags %}
+
+
+
+<header class="main-header">
+    <!-- logo   -->
+    
+    <a href="#" class="logo-holder"><img src="{% static '/img/logo_SBA.png'%}" style="width: 174px;" alt=""></a>  
+    
+    <!-- search end  -->
+    <a class="share-btn" href="#"><i class="fa-solid fa-cash-register"></i><span>Create a Income</span></a>
+    <a href="{% url 'businessmodel:admin_comprobante_pdf' venta_id=venta.id %}" class="share-btn"><i class="fa-solid fa-eye"></i><span>Live report</span></a>
+
+    
+    
+   
+
+    <div class="nav-holder main-menu">
+        <nav>
+            <ul>
+                <li>
+                    <a href="#"  class="act-link">
+                        Operating Income 
+                    </a>
+                </li>
+
+             
+                <li>
+                    <button  id="tools-button" class="tools-button">  <i class="fa-solid fa-i"></i></button>
+
+               
+                    <ul>
+
+                        
+                     
+                        <li>
+                            <a href="{% url 'businessmodel:informacion_venta' venta_id=venta.id %}"> 
+                               Income Detail 
+                              
+                            </a> 
+
+                            
+                        </li>
+
+                        <li>
+                            <a href="{% url 'businessmodel:history_incomes_amount' venta_id=venta.id %}"> 
+                            Income  History
+                            </a> 
+                        </li>
+                     
+                    </ul>
+                    <!--second level end-->
+                </li>
+
+                <li>
+                 
+                        <button  id="tools-button" class="tools-button"> <i class="fa-solid fa-m"></i></button>
+                      
+               
+                    <ul>
+                     
+                        <li>
+                            <a href="{% url 'businessmodel:income_scatter' venta_id=venta.id %}"> 
+                                Income Scatter
+                            </a> 
+                        </li>
+
+                        <li>
+                            <a href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}"> 
+                               Income Frequeancy
+                            </a> 
+                        </li>
+
+                        <li>
+                            <a href="{% url 'businessmodel:pie_incomes_time' venta_id=venta.id %}""> 
+                              Income  Distribution
+                            </a> 
+                        </li>
+                     
+                    </ul>
+                    <!--second level end-->
+                </li>
+
+                <li>
+                    <button  id="tools-button" class="tools-button">  <i class="fa-solid fa-a"></i> </button>
+               
+                    <ul>
+                     
+                        <li>
+                            <a href="#"> 
+                             Income Insights
+                            </a> 
+                        </li>                     
+                    </ul>
+                    <!--second level end-->
+                </li>
+              
+            </ul>
+          
+        </nav>
+    </div>
+    <!-- navigation  end -->  
+     
+     <!-- mobile nav -->
+     <div class="nav-button-wrap">
+        <div class="nav-button"><span></span><span></span><span></span></div>
+    </div>
+</header>

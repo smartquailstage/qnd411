@@ -1,0 +1,15 @@
+{% extends "admin/businessmodel/base.html" %}
+{% load i18n  static %}
+
+
+{% block content %}
+
+{% include 'admin/businessmodel/ventas/tools/notifications.html' %}
+{% include 'admin/businessmodel/ventas/tools/tabs.html' %}
+{% include 'admin/businessmodel/ventas/tools/informacion.html' %}
+{% include 'admin/businessmodel/ventas/tools/detalles.html' %}
+
+
+<script type="text/javascript" src="{% static 'js/base_scripts.js' %}"></script>
+
+{% endblock %}

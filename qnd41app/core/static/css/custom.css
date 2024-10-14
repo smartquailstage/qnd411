@@ -1,0 +1,33 @@
+header {
+    padding-top: 1em;
+    padding-bottom: 1em;
+    background-color: hsl(0, 0%, 14.9%);
+    margin-bottom: 2em;
+}
+
+.breadcrumb .arrow_right_icon {
+    color: #fc00a2;
+}
+
+.page-explorer .listing .index {
+    color: #fff;
+    background-color: hsl(180.4761904762,100%,24.7058823529%);
+    background-color: hsl(203deg 62% 43%);
+}
+
+
+
+.sidebar__inner {
+    height: 100%;
+    background: #5d0303;
+    display: flex;
+    flex-flow: column nowrap;
+  }
+@media screen and (min-width: 50em)
+.breadcrumb {
+    padding-top: 0;
+    background-color: #fc00a2;
+    margin-left: -50px;
+    margin-right: -50px;
+}
+

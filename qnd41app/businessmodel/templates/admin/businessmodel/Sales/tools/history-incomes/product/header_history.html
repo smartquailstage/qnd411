@@ -1,0 +1,253 @@
+{% load widget_tweaks %}
+{% load static %}
+{% load menu_tags %}
+
+<div id="filterPopup_customers" class="popup">
+    <div class="popup-content">
+        <span class="close" onclick="togglePopup_customers()">&times;</span>
+        <div id="contact-form" class="custom-form" class="fl-wrap">
+
+            <form method="get" action="{% url 'businessmodel:history_incomes_product' venta.id %}">
+                
+              <div class="form-group">
+                <label for="nombre_producto">Nombre de Producto:</label>
+                <input type="text" id="nombre_producto" name=" nombre_producto" class="form-control" value="{{ request.GET.nombre_producto}}" placeholder="Nombre de Producto">
+              </div>
+                <hr>                        
+  
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary">Search Incomes</button>
+                </div>
+              </form>
+              
+        </div>
+    </div>
+</div>
+
+<div id="filterPopup_timerange" class="popup">
+  <div class="popup-content">
+      <span class="close" onclick="togglePopup_timerange()">&times;</span>
+      <div id="contact-form" class="custom-form" class="fl-wrap">
+
+          <form method="get" action="{% url 'businessmodel:history_incomes_product' venta.id %}">
+              
+                    
+              <!-- Filas con dos columnas para fecha y hora -->
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="fecha_inicio">Fecha de Inicio:</label>
+                  <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+                </div>
+            
+                <div class="form-group col-md-6">
+                  <label for="fecha_fin">Fecha de Fin:</label>
+                  <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+                </div>
+              </div>
+            
+              <div class="form-row">
+                <div class="form-group col-md-6">
+                  <label for="hora_inicio">Hora de Inicio:</label>
+                  <input type="time" id="hora_inicio" name="hora_inicio" class="form-control" value="{{ request.GET.hora_inicio }}">
+                </div>
+            
+                <div class="form-group col-md-6">
+                  <label for="hora_fin">Hora de Fin:</label>
+                  <input type="time" id="hora_fin" name="hora_fin" class="form-control" value="{{ request.GET.hora_fin }}">
+                </div>
+              </div>                      
+
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Search Incomes</button>
+              </div>
+            </form>
+            
+      </div>
+  </div>
+</div>
+
+
+<div id="filterPopup_amountrange" class="popup">
+  <div class="popup-content">
+      <span class="close" onclick="togglePopup_amountrange()">&times;</span>
+      <div id="contact-form" class="custom-form" class="fl-wrap">
+
+          <form method="get" action="{% url 'businessmodel:history_incomes_product' venta.id %}">
+              
+            
+            <div class="form-group">
+              <label for="monto_min">Monto Mínimo:</label>
+              <input type="number" id="monto_min" name="monto_min" class="form-control" value="{{ request.GET.monto_min }}" placeholder="Monto mínimo">
+            </div>
+          
+            <div class="form-group">
+              <label for="monto_max">Monto Máximo:</label>
+              <input type="number" id="monto_max" name="monto_max" class="form-control" value="{{ request.GET.monto_max }}" placeholder="Monto máximo">
+            </div>
+          
+            
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Search Incomes</button>
+              </div>
+            </form>
+            
+      </div>
+  </div>
+</div>
+
+<header class="main-header">
+    <!-- logo   -->
+    
+    <a href="#" class="logo-holder"><img src="{% static '/img/logo_SBA.png'%}" style="width: 174px;" alt=""></a>  
+    
+    <!-- search end  -->
+    <a class="share-btn" href="#"><i class="fa-solid fa-cash-register"></i><span>Create a Income</span></a>
+    <a href="{% url 'businessmodel:admin_comprobante_historial_pdf' venta_id=venta.id %}" class="share-btn"><i class="fa-solid fa-eye"></i><span>Live report</span></a>
+    <a class="share-btn" onclick="togglePopup_customers()"><i class="fa-solid fa-magnifying-glass-dollar"></i><span>Filter</span></a>
+    
+ 
+    
+    
+   
+
+    <div class="nav-holder main-menu">
+        <nav>
+            <ul>
+                <li>
+                    <a href="#"  class="act-link">
+                        Operating Income 
+                    </a>
+                </li>
+
+             
+                <li>
+                    <button  id="tools-button" class="tools-button">  <i class="fa-solid fa-i"></i></button>
+
+               
+                    <ul>
+
+                        
+                     
+                        <li>
+                            <a href="{% url 'businessmodel:informacion_venta' venta_id=venta.id %}"> 
+                               Income Detail 
+                              
+                            </a> 
+
+                            
+                        </li>
+
+                        <li>
+                            <a href="{% url 'businessmodel:history_incomes_amount' venta_id=venta.id %}"> 
+                            Income  History
+                            </a> 
+                        </li>
+                     
+                    </ul>
+                    <!--second level end-->
+                </li>
+
+                <li>
+                 
+                        <button  id="tools-button" class="tools-button"> <i class="fa-solid fa-m"></i></button>
+                      
+               
+                    <ul>
+                     
+                        <li>
+                            <a href="{% url 'businessmodel:income_scatter' venta_id=venta.id %}"> 
+                                Income Scatter
+                            </a> 
+                        </li>
+
+                        <li>
+                            <a href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}"> 
+                               Income Frequeancy
+                            </a> 
+                        </li>
+
+                        <li>
+                            <a href="{% url 'businessmodel:pie_incomes_time' venta_id=venta.id %}""> 
+                              Income  Distribution
+                            </a> 
+                        </li>
+                     
+                    </ul>
+                    <!--second level end-->
+                </li>
+
+
+
+                <li>
+                  <button  id="tools-button" class="tools-button"> <i class="fa-solid fa-a"></i> </button>
+  
+                <ul>
+                  <li>
+                    <a  onclick="togglePopup_customers()"> 
+                    Product
+                    </a> 
+                </li> 
+                  <li>
+                    <a onclick="togglePopup_timerange()"> 
+                     Time range
+                    </a> 
+                </li> 
+                  <li>
+                    <a onclick="togglePopup_amountrange()"> 
+                       Amount range
+                      </a> 
+                  </li>                     
+              </ul>
+                  <!--second level end-->
+              </li>
+              
+            </ul>
+          
+        </nav>
+    </div>
+    <!-- navigation  end -->  
+     
+     <!-- mobile nav -->
+     <div class="nav-button-wrap">
+        <div class="nav-button"><span></span><span></span><span></span></div>
+    </div>
+</header>
+
+<script>
+        function togglePopup_customers() {
+        const popup = document.getElementById("filterPopup_customers");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup_customers");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
+
+    function togglePopup_timerange() {
+        const popup = document.getElementById("filterPopup_timerange");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup_timerange");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
+
+    function togglePopup_amountrange() {
+        const popup = document.getElementById("filterPopup_amountrange");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup_amountrange");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
+
+</script>

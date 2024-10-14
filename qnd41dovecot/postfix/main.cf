@@ -1,0 +1,114 @@
+###############
+# General
+###############
+
+# Main domain and hostname
+mydomain = {{ DOMAIN }}
+myhostname = {{ HOSTNAME }}
+myorigin = $mydomain
+
+# Message size limit
+message_size_limit = {{ MESSAGE_SIZE_LIMIT }}
+
+# Relayed networks
+mynetworks = 127.0.0.1/32 [::1]/128 {{ RELAYNETS }}
+
+# Transport maps using PCRE
+transport_maps = pcre:/etc/postfix/transport.pcre
+
+# Empty alias list to override the configuration variable and disable NIS
+alias_maps =
+
+# Only accept virtual emails
+mydestination = $myhostname, $mydomain, localhost.localdomain, localhost
+
+# Relayhost if any is configured
+relayhost = [smtp.mail.smartquail.io]:587
+
+###############
+# Restrictions
+###############
+
+# Delay all rejects until all information can be logged
+smtpd_delay_reject = yes
+append_dot_mydomain = no
+
+# Allowed senders are: the user or one of the alias destinations
+smtpd_sender_login_maps = $virtual_alias_maps
+
+# Helo restrictions are specified for smtp only in master.cf
+smtpd_helo_required = yes
+
+# Sender restrictions
+smtpd_sender_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_non_fqdn_sender,
+    reject_unknown_sender_domain,
+    reject_unlisted_sender,
+    reject_sender_login_mismatch,
+    reject_authenticated_sender_login_mismatch,
+    reject_unauthenticated_sender_login_mismatch,
+    permit
+
+# Recipient restrictions
+smtpd_recipient_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination,
+    permit
+
+# Relay restrictions
+smtpd_relay_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination
+
+###############
+# TLS Settings
+###############
+
+smtp_tls_security_level = may
+smtpd_tls_security_level = may
+smtpd_tls_auth_only = no
+smtpd_tls_cert_file = /etc/ssl/certs/fullchain.pem
+smtpd_tls_key_file = /etc/ssl/private/privkey.pem
+smtpd_tls_received_header = yes
+smtp_tls_note_starttls_offer = yes
+smtpd_tls_loglevel = 1
+smtpd_tls_session_cache_timeout = 3600s
+
+tls_random_source = dev:/dev/urandom
+
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1
+smtpd_tls_ciphers = high
+
+###############
+# SASL Settings
+###############
+
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_authenticated_header = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_tls_security_options = noanonymous
+smtpd_sasl_local_domain = $myhostname
+
+broken_sasl_auth_clients = yes
+
+###############
+# Extra Settings
+###############
+
+maillog_file = /dev/stdout
+
+##############
+# PostgreSQL configuration
+###############
+
+virtual_mailbox_domains = pgsql:/etc/postfix/sql/virtual_mailbox_domains.cf
+virtual_mailbox_maps = pgsql:/etc/postfix/sql/virtual_mailbox_maps.cf
+virtual_alias_maps = pgsql:/etc/postfix/sql/virtual_alias_maps.cf
+virtual_mailbox_users = pgsql:/etc/postfix/sql/virtual_mailbox_users.cf

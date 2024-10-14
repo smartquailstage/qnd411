@@ -1,0 +1,102 @@
+{% load i18n  static %}
+
+
+
+
+<div id="financieros" class="tab-content">
+    <h4>Parámetros Financieros de Venta</h4>
+    <table class="info-table">
+      <tbody>
+        <tr>
+          <th class="info-name">Ingresos Totales</th>
+          <td class="info-value">${{ ingresos_totales }}</td>
+          <td class="info-description">Suma total de todos los ingresos generados por las ventas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Ventas Netas</th>
+          <td class="info-value">${{ ventas_netas }}</td>
+          <td class="info-description">Ingresos totales menos devoluciones, descuentos y rebajas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Costo de Ventas</th>
+          <td class="info-value">${{ costo_ventas }}</td>
+          <td class="info-description">Gastos asociados directamente con la producción de bienes vendidos.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Margen Bruto</th>
+          <td class="info-value">${{ margen_bruto }}</td>
+          <td class="info-description">Ingresos netos menos el costo de ventas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Ganancia Bruta</th>
+          <td class="info-value">${{ ganancia_bruta }}</td>
+          <td class="info-description">Ingresos totales menos el costo de ventas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Gastos Operativos</th>
+          <td class="info-value">${{ gastos_operativos }}</td>
+          <td class="info-description">Costos necesarios para mantener las operaciones diarias del negocio.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Ganancia Operativa</th>
+          <td class="info-value">${{ ganancia_operativa }}</td>
+          <td class="info-description">Ganancia generada a partir de las operaciones principales del negocio.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Margen Operativo</th>
+          <td class="info-value">${{ margen_operativo }}</td>
+          <td class="info-description">Porcentaje de ingresos que queda después de deducir los gastos operativos.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Ganancia Neta</th>
+          <td class="info-value">${{ ganancia_neta }}</td>
+          <td class="info-description">Beneficio total después de deducir todos los gastos, impuestos e intereses.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Rendimiento de Ventas</th>
+          <td class="info-value">${{ rendimiento_ventas }}</td>
+          <td class="info-description">Eficiencia de la empresa en generar beneficios a partir de las ventas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Índice de Rotación de Inventario</th>
+          <td class="info-value">{{ indice_rotacion_inventario }}</td>
+          <td class="info-description">Frecuencia con la que el inventario se vende y se reemplaza en un período determinado.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Días de Inventario</th>
+          <td class="info-value">{{ dias_inventario }}</td>
+          <td class="info-description">Número promedio de días que un artículo permanece en inventario antes de ser vendido.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Tasa de Crecimiento de Ventas</th>
+          <td class="info-value">{{ tasa_crecimiento_ventas }}</td>
+          <td class="info-description">Porcentaje de aumento en las ventas durante un período específico.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Ventas por Empleado</th>
+          <td class="info-value">${{ ventas_por_empleado }}</td>
+          <td class="info-description">Promedio de ventas generadas por cada empleado en un período determinado.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Ciclo de Conversión de Efectivo</th>
+          <td class="info-value">{{ ciclo_conversion_efectivo }}</td>
+          <td class="info-description">Tiempo que tarda una empresa en convertir sus inversiones en inventario y otros recursos en efectivo a partir de ventas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Tasa de Descuento en Ventas</th>
+          <td class="info-value">{{ tasa_descuento_ventas }}</td>
+          <td class="info-description">Porcentaje promedio de descuento aplicado a las ventas.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Valor del Cliente en el Tiempo</th>
+          <td class="info-value">${{ valor_cliente_tiempo }}</td>
+          <td class="info-description">Valor total que se espera que un cliente genere durante toda su relación con la empresa.</td>
+        </tr>
+        <tr>
+          <th class="info-name">Costo de Adquisición de Clientes</th>
+          <td class="info-value">${{ costo_adquisicion_clientes }}</td>
+          <td class="info-description">Costo promedio para adquirir un nuevo cliente.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>

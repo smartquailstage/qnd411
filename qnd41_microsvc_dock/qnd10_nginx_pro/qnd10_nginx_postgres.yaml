@@ -1,0 +1,63 @@
+version: "3.3"
+
+services:
+  qnd10app:
+    image: smartquail/qnd10app:latest
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+    expose:
+      - 9000
+    ports:
+      - "9000:9000"
+    volumes:
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/staticfiles
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/media
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/static
+      
+ 
+
+  smartquaildb:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    restart: always
+    command: -p 5432
+    expose:
+     - 5432
+    volumes:
+      - smartquaildb_data-qnode10:/var/lib/postgresql/data/
+
+
+  nginx:
+    image: smartquail/qnd10_nginx:prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=80
+    depends_on:
+      - qnd10app
+    ports:
+      - "80:80"
+      - "443:443"  
+    volumes:
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/staticfiles
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/media
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/static
+      - certbot-web_2:/vol/www
+      - proxy-dhparams_2:/vol/proxy
+      - letsencrypt_certs:/etc/letsencrypt/live/www.smartquail.io/
+
+
+volumes:
+  certbot-web_2:
+  proxy-dhparams_2:
+  letsencrypt_certs:
+  static-data-qnd10:
+  smartquaildb_data-qnode10:
+

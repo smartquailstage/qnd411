@@ -1,0 +1,9 @@
+{% load i18n  static %}
+
+
+<div id="grafico" class="tab-content">
+    <h4>Gráfico Adicional</h4>
+    <div class="module">
+      <img id="ventas-grafico-2" src="{% url 'ventas_grafico' %}?v={{ timestamp }}" alt="Ventas Gráfico" class="responsive-img">
+    </div>
+  </div>

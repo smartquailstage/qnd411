@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+{% load i18n  static %}
+
+
+
+{% block extrastyle %}
+
+<link type="text/css" rel="stylesheet" href="{% static '/css/styles.css' %}">
+
+<link href="{% static 'fontawesome/css/fontawesome.css' %}" rel="stylesheet" />
+<link href="{% static 'fontawesome/css/brands.css' %}" rel="stylesheet" />
+<link href="{% static 'fontawesome/css/css/solid.css' %}" rel="stylesheet" />
+{% endblock %}
+
+
+{% block title %}
+SmartBusinessMedia-Ventas
+{% endblock %}
+
+{% block branding %}
+<img src="{% static 'img/logo_SBA.png' %}" height="20px" alt="Logo">
+
+<div class="branding-container" style="position: fixed; right: 0; top: 0; color:darkgray;font-size: 9pt;">
+  {% if businessinfo %}
+  <p>ID: {{ businessinfo.id_negocio }}, Version: {{ businessinfo.sistema_version }}</p>
+{% else %}
+  <p>No hay información de negocio disponible.</p>
+{% endif %}
+</div>
+{% endblock %}
+
+
+
+
+{% block breadcrumbs %}
+
+
+
+ 
+{% include 'admin/businessmodel/Sales/header.html' %}
+
+
+
+
+{% endblock %}
+
+
+
+
+
+{% block content %}
+
+
+
+{% endblock %}
+
+<script type="text/javascript" src="{% static 'js/base_scripts.js' %}"></script>
+
+

@@ -1,0 +1,51 @@
+
+{% extends "admin/businessmodel/base.html" %}
+{% load i18n static %}
+
+
+
+
+<div id="detalles" class="tab-content">
+    {% block content %}
+    <h4>Detalles de Ventas</h4>
+{% if lista_ventas %}
+    <table id="result_list" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Nombre del Cliente</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in lista_ventas %}
+            <tr>
+                <td>{{ venta.id }}</td>
+                <td>{{ venta.fecha|date:"d/m/Y H:i" }}</td>
+                <td>{{ venta.first_name }} {{ venta.last_name }}</td>
+                <td>${{ venta.total_a_pagar|floatformat:2 }}</td>
+                <td>
+                    <a href="{% url 'businessmodel:detalles_venta' venta_id=venta.id %}" class="btn btn-info">Ver Detalles</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No hay ventas registradas.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No se encontraron datos de ventas.</p>
+{% endif %}
+{% endblock %}
+</div>
+
+
+<script type="text/javascript" src="{% static 'js/base_scripts.js' %}"></script>
+
+
+
+

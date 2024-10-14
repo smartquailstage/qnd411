@@ -1,0 +1,128 @@
+version: "3.3"
+
+services:
+  qnd10app:
+    image: smartquail/qnd10app:latest
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+    expose:
+      - 9000
+    ports:
+      - "9000:9000"
+    volumes:
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/staticfiles
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/media
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/static
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "8001:80"
+    restart: always
+
+
+
+  smartquaildb:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    restart: always
+    command: -p 5432
+    expose:
+     - 5432
+    volumes:
+      - smartquaildb_data-qnode10:/var/lib/postgresql/data/
+
+
+  nginx:
+    image: smartquail/qnd10_nginx:prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=80
+    depends_on:
+      - qnd10app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/staticfiles
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/media
+      - static-data-qnd10:/qnd10app/qnd10app/qnd10app/static
+      - certbot-web_2:/vol/www
+      - proxy-dhparams_2:/vol/proxy
+      - letsencrypt_certs:/etc/letsencrypt/
+
+  postfix:
+    image: smartquail/qnd10postfix:prod
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+    environment:
+      - inet_interfaces= all
+      - smtp_bind_address=0.0.0.0
+      - smtpd_tls_cert_file=/etc/ssl/certs/fullchain.pem
+      - smtpd_tls_key_file=/etc/ssl/private/privkey.pem
+      - smtpd_sasl_auth_enable=yes
+      - debug_peer_list=127.0.0.1
+      - debug_peer_level=2
+      - TRANSPORT_MAPS=/etc/postfix/transport.pcre
+      - PRIVATE_TRANSPORT=/var/spool/postfix/private/transport
+      - smtp_dns_resolver_options=inet_protocols = all
+      - inet_protocols=all
+      - smtp_host_lookup=dns
+    expose:
+      - "25"
+    ports:
+      - "25:25"
+    volumes:
+      - postfix-spools:/var/spool/postfix
+      - postfix-mail:/var/mail
+      - postfix-logs:/var/log
+
+
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: info@mail.smartquail.io  # Correo electrónico de administrador de PGAdmin
+      PGADMIN_DEFAULT_PASSWORD: sqdatabaseadmin          # Contraseña de administrador de PGAdmin
+      PGADMIN_LISTEN_PORT: 80                  # Puerto de escucha de PGAdmin
+    ports:
+      - "5050:80"  # Puerto de PGAdmin accesible desde fuera del contenedor
+    depends_on:
+      - smartquaildb
+
+
+
+volumes:
+  redis_data:
+  certbot-web_2:
+  proxy-dhparams_2:
+  letsencrypt_certs:
+  static-data-qnd10:
+  smartquaildb_data-qnode10:
+  postfix-spools:
+  postfix-mail:
+  postfix-logs:

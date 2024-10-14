@@ -1,0 +1,220 @@
+{% extends "admin/businessmodel/Sales/base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block content %}
+
+{% include 'admin/businessmodel/Sales/tools/history-incomes/amount/header_history.html' %}
+
+<div id="wrapper">
+    <div class="content full-height">
+        <div class="home-main_container">
+      
+            <div class="full-height fl-wrap hidden-item">
+                <div class="results-card">
+                    <!-- Filtros -->
+            
+
+                    <div class="tabs">
+                        <button class="tab-button active" href="{% url 'businessmodel:history_incomes_amount' venta_id=venta.id %}">
+                            <i class="fa-regular fa-rectangle-list"></i>
+                            <h3>Income Customers History</h3>
+                        </button>
+                        <a class="tab-button" href="{% url 'businessmodel:history_incomes_product' venta_id=venta.id %}">
+                            <i class="fa-solid fa-list-check"></i>
+                            <h3>Income Product History</h3>
+                        </a>
+                    </div>
+
+                    <!-- Contenido de las pestañas -->
+                    <div id="historyCustomers" class="tab-content active">
+                        <table id="result_list" class="info-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Nombre del Cliente</th>
+                                    <th>Sub Total</th>
+                                    <th>I.V.A (valor)</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venta in lista_ventas %}
+                                <tr>
+                                    <td data-label="ID">{{ venta.id }}</td>
+                                    <td data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
+                                    <td data-label="Hora">{{ venta.hora|time:"H:i" }}</td>
+                                    <td data-label="Nombre del Cliente">{{ venta.first_name }} {{ venta.last_name }}</td>
+                                    <td data-label="Sub Total">${{ venta.sub_total|floatformat:2 }}</td>
+                                    <td data-label="I.V.A (valor)">${{ venta.valor_iva|floatformat:2 }}</td>
+                                    <td data-label="Total">${{ venta.total_a_pagar|floatformat:2 }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="7">No hay ventas registradas.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">{{ cantidad_ventas }} ventas</th>
+                                    <th colspan="1" style="text-align: right;">Total General:</th>
+                                    <th>${{ suma_sub_totales|floatformat:2 }}</th>
+                                    <th>${{ suma_valor_iva|floatformat:2 }}</th>
+                                    <th>${{ suma_totales|floatformat:2 }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div id="historyProduct" class="tab-content">
+                        <table id="result_list" class="info-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Nombre del Producto</th>
+                                    <th>Cantidad</th>
+                                    <th>Sub Total</th>
+                                    <th>I.V.A (valor)</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for venta in lista_ventas %}
+                                    {% for item in venta.items.all %}
+                                    <tr>
+                                        <td data-label="ID">{{ venta.id }}</td>
+                                        <td data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
+                                        <td data-label="Hora">{{ venta.hora|time:"H:i" }}</td>
+                                        <td data-label="Nombre del Producto">{{ item.product.nombre }}</td>
+                                        <td data-label="Cantidad">{{ item.quantity }}</td>
+                                        <td data-label="Sub Total">${{ item.get_cost|floatformat:2 }}</td>
+                                        <td data-label="I.V.A (valor)">${{ venta.valor_iva|floatformat:2 }}</td>
+                                        <td data-label="Total">${{ venta.total_a_pagar|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8">No hay ventas registradas.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">{{ cantidad_ventas }} ventas</th>
+                                    <th></th>
+                                    <th colspan="1" style="text-align: right;"></th>
+                                    <th>${{ suma_sub_totales|floatformat:2 }}</th>
+                                    <th>${{ suma_valor_iva|floatformat:2 }}</th>
+                                    <th>${{ suma_totales|floatformat:2 }}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="share-wrapper">
+        <div class="share-container fl-wrap isShare"></div>
+    </div>
+</div>
+
+<div class="sb-overlay"></div>
+<div class="hiiden-sidebar-wrap outsb">
+    <div class="sb-widget-wrap fl-wrap">
+        <h3>LEAVE YOUR COMMENTS</h3>
+        <div class="sb-widget fl-wrap">
+            <p> Let me know, what you think about my work. I will contact you soon. </p>
+            <div class="column-wrapper_item fl-wrap">
+                <div class="column-wrapper_text fl-wrap">
+                    <div id="contact-form" class="fl-wrap">
+                        <div id="message"></div>
+                        <form action="#" method="POST" novalidate class="custom-form" action="php/contact.php" name="contactform">
+                            <fieldset>
+                                {% csrf_token %}
+                                {% for hidden_field in form.hidden_fields %}
+                                {{ hidden_field }}
+                                {% endfor %}
+                                {% if form.non_field_errors %}
+                                <div class="alert alert-danger" role="alert">
+                                    {% for error in form.non_field_errors %}
+                                    {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% for field in form.visible_fields %}
+                                <div class="form-group">
+                                    {{ field.label_tag }}
+                                    {% if form.is_bound %}
+                                    {% if field.errors %}
+                                    {% render_field field class="form-control is-invalid" %}
+                                    {% for error in field.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ error }}
+                                    </div>
+                                    {% endfor %}
+                                    {% else %}
+                                    {% render_field field class="form-control is-valid" %}
+                                    {% endif %}
+                                    {% else %}
+                                    {% render_field field class="form-control" %}
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                    <small class="form-text text-muted" placeholder="Your Email">{{ field.help_text }}</small>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </fieldset>
+                        </form>
+                        <button type="submit" id="subscribe-button" class="subscribe-button">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="sb-widget-wrap fl-wrap">
+        <h3>I'm a Social</h3>
+        <div class="sb-widget fl-wrap">
+            <div class="sidebar-social fl-wrap">
+                <ul>
+                    <li><a href="https://api.whatsapp.com/send?phone=593984534954" target="_blank"><i class="fab fa-whatsapp"></i></a></li>
+                    <li><a href="mailto:info@juansilvaphoto.com" target="_blank"><i class="fa fa-envelope"></i></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="sb-widget-wrap fl-wrap">
+        <div class="sb-widget fl-wrap">
+            <a href="#" target="_blank" class="twitt_btn fl-wrap">Follow Us</a>
+        </div>
+    </div>
+    {% include 'admin/businessmodel/Sales/footer.html' %}
+</div>
+
+<script>
+
+
+    function openTab(event, tabName) {
+        var i, tabcontent, tabbuttons;
+        tabcontent = document.getElementsByClassName("tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].classList.remove("active");
+        }
+        tabbuttons = document.getElementsByClassName("tab-button");
+        for (i = 0; i < tabbuttons.length; i++) {
+            tabbuttons[i].classList.remove("active");
+        }
+        document.getElementById(tabName).classList.add("active");
+        event.currentTarget.classList.add("active");
+    }
+
+    
+</script>
+
+{% endblock %}

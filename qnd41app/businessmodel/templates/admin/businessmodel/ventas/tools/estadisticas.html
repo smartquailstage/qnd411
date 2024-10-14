@@ -1,0 +1,165 @@
+{% load i18n  static %}   
+
+
+
+
+   
+   <!-- Contenido de las Pestañas -->
+   
+    <div id="estadisticas" class="tab-content">      
+        <div class="module">
+        <div class="chart-wrapper">
+            <!-- Formulario para seleccionar el período -->
+            <form method="GET" action="{% url 'ventas_grafico' %}" class="filter-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="{{ form.periodo.id_for_label }}">{{ form.periodo.label }}</label>
+                        {{ form.periodo }}
+                    </div>
+    
+                </div>
+                <button type="submit">Analizar</button>
+            </form>
+    
+            <!-- Imagen del gráfico -->
+            <div class="chart-container">
+                <img id="chart" src="{% url 'ventas_grafico' %}?periodo={{ form.periodo.value }}" alt="Ventas Gráfico">
+            </div>
+    
+            <!-- Recuadro de texto -->
+            <div class="text-block">
+                <h2>Descripción</h2>
+                <p>Aquí puedes añadir un texto descriptivo sobre el gráfico. Proporciona detalles sobre los datos que se presentan, como la interpretación de las tendencias, las principales conclusiones, o cualquier otro comentario relevante.</p>
+                <p>Este texto puede ayudar a los usuarios a entender mejor el gráfico y cómo los datos se relacionan con el período seleccionado y los productos filtrados.</p>
+  
+                <table id="result_list" class="table table-striped">
+                  <thead>
+                      <tr>
+                          <th>Parámetros de venta</th>
+                          <th>Montos</th>
+                          <th>Cantidad</th>
+                          <!-- Agrega más encabezados si es necesario -->
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <!-- Filas de datos -->
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Ingresos Totales</td>
+                          <td>${{ total_ingreso }}</td>
+                          <td>{{ total_ingreso_cantidad }}</td>
+                      </tr>
+              
+                      <!-- Fila de totales u otros datos -->
+                      <tr class="total">
+                          <td colspan="2">Ventas Netas</td>
+                          <td>${{ ventas_netas }}</td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Costo de Ventas</td>
+                          <td>${{ costo_unitario_total }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Margen Bruto</td>
+                          <td>${{ margen_bruto }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Ganancia Bruta</td>
+                          <td>${{ ganancia_bruta }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Gastos Operativos</td>
+                          <td>${{ gastos_operativos }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Ganancia Operativa</td>
+                          <td>${{ ganancia_operativa }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Margen Operativo</td>
+                          <td>{{ margen_operativo }}%</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Ganancia Neta</td>
+                          <td>${{ ganancia_neta }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Rendimiento de Ventas</td>
+                          <td>{{ rendimiento_ventas }}%</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Índice de Rotación de Inventario</td>
+                          <td>{{ indice_rotacion_inventario }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Días de Inventario</td>
+                          <td>{{ dias_inventario }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Tasa de Crecimiento de Ventas</td>
+                          <td>{{ tasa_crecimiento_ventas }}%</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Ventas por Empleado</td>
+                          <td>${{ ventas_por_empleado }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Ciclo de Conversión de Efectivo</td>
+                          <td>{{ ciclo_conversion_efectivo }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Tasa de Descuento en Ventas</td>
+                          <td>{{ tasa_descuento_ventas }}%</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Valor del Cliente en el Tiempo</td>
+                          <td>${{ valor_cliente_tiempo }}</td>
+                          <td></td>
+                      </tr>
+              
+                      <tr class="row{% cycle '1' '2' %}">
+                          <td>Costo de Adquisición de Clientes</td>
+                          <td>${{ costo_adquisicion_clientes }}</td>
+                          <td></td>
+                      </tr>
+                      <tr class="row{% cycle '1' '2' %}">
+                        <td>desviacion_estandar</td>
+                        <td>${{desviacion_estandar }}</td>
+                        <td></td>
+                    </tr>
+  
+                  </tbody>
+              </table>
+              
+            </div>
+        </div>
+      </div>
+    </div>

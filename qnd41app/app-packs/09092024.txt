@@ -1,0 +1,177 @@
+# Django
+django==4.2.16
+
+# Wagtail
+wagtail==6.2.1
+
+# Django Baton
+django-baton==4.1.0
+
+matplotlib
+scipy
+pandas
+numpy
+
+psycopg[binary]
+
+# Django Social Share
+django-social-share
+
+# Wagtail Google Maps
+wagtailgmaps
+
+# XlsxWriter
+XlsxWriter
+
+# Requests
+requests
+
+# Celery
+celery>=5.2.7,<6.0  # Compatible with Django 4.2
+
+# uWSGI
+uWSGI==2.0.26
+
+# Redis
+redis>=4.5.5
+
+# Django Dotenv
+django-dotenv
+
+# Psycopg2
+psycopg2-binary>=2.9.6  # Removed comment, using binary version
+
+# Django Storages
+django-storages==1.14.4
+
+# Django Contrib Comments
+#django-contrib-comments
+
+# Django CORS Headers
+django-cors-headers==4.4.0
+
+# Django Countries
+django-countries==7.6.1
+
+django-cities
+ django-cities-light
+
+
+# Social Auth App Django
+social-auth-app-django
+
+# Sorl Thumbnail
+sorl-thumbnail==12.10.0
+
+# Django Redis
+django-redis==5.4.0
+
+# Django Widget Tweaks
+django-widget-tweaks==1.5.0
+
+# Django Phone Field
+#django-phone-field
+
+# Django Phonenumber Field
+django-phonenumber-field==8.0.0
+
+# Django Bootstrap Datepicker Plus
+#django-bootstrap-datepicker-plus
+
+# Django Bootstrap V5
+django-bootstrap3==24.2
+
+# Django Bootstrap 4
+#django-bootstrap4
+
+# Django JQuery
+django-jquery
+
+# Django Embed Video
+django-embed-video
+
+# Django CKEditor
+django-ckeditor
+
+# Django QR Code
+django-qr-code
+
+# Django Braces
+django-braces
+
+# Django Environ
+django-environ>=0.10.0
+
+# Kombu
+kombu>=5.3.4
+
+# Django Parler
+django-parler
+
+# Django Localflavor
+django-localflavor
+
+# Django Rosetta
+django-rosetta
+
+# Wagtail Localize
+wagtail-localize
+
+# Django Memcache Status
+django-memcache-status
+
+# Wagtail Media
+wagtailmedia
+
+# Django Forms Bootstrap
+django-forms-bootstrap
+
+# Django REST Framework
+djangorestframework>=3.14.0
+
+# Django Debug Toolbar
+django-debug-toolbar>=4.0.1
+
+# Django Seed
+django-seed
+
+# Pymemcache
+pymemcache>=3.5.2
+
+# Boto3
+boto3>=1.26.6
+
+# PyOpenSSL
+PyOpenSSL>=23.1.0
+
+# Python Dotenv
+python-dotenv==0.21.0
+
+# Python Memcached
+python-memcached
+
+# Ecommerce
+braintree>=4.29.0
+
+# Weasyprint
+weasyprint==62.3
+
+# Wagtail Menus
+wagtailmenus==4.0.1
+
+sphinx>=3.0.0
+colorspacious
+ipython
+ipywidgets
+ipykernel
+numpydoc>=1.0
+packaging>=20
+pydata-sphinx-theme~=0.15.0
+mpl-sphinx-theme~=3.9.0
+pyyaml
+sphinxcontrib-svg2pdfconverter>=1.1.0
+sphinxcontrib-video>=0.2.1
+sphinx-copybutton
+sphinx-design
+sphinx-gallery>=0.12.0
+sphinx-tags>=0.3.0

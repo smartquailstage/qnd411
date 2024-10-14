@@ -1,0 +1,108 @@
+version: "3.3"
+
+services:
+  qnd30_app_stg:
+    image: smartquail/qnd30app:latest
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+    #  - redis
+    #  - "worker"
+    expose:
+      - 9000
+    ports:
+      - "9000:9000"
+    volumes:
+      - static-data-qnd30:/qnd30_app_stg/qnd30_app_stg/staticfiles
+      - static-data-qnd30:/qnd30_app_stg/qnd30_app_stg/media
+   # command: sh -c "chmod +x /scripts/migrations.sh && sh /scripts/migrations.sh && sh /scripts/run.sh"
+    networks: 
+      - lansmartquail
+
+  smartquaildb:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    restart: always
+    command: -p 5432
+    ports:
+      - "5432:5432"
+    expose:
+     - 5432
+    volumes:
+      - smartquaildb_data-qnode12:/var/lib/postgresql/data/
+    networks: 
+      - lansmartquail
+
+  nginx:
+    image: smartquail/qnd30_nginx:prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=80
+    depends_on:
+      - qnd30_app_stg
+    ports:
+      - 80:80
+      - 443:443  
+    volumes:
+      - static-data-qnd30:/qnd30_app_stg/qnd30_app_stg/staticfiles
+      - static-data-qnd30:/qnd30_app_stg/qnd30_app_stg/media
+      - certbot-web_2:/vol/www
+      - proxy-dhparams_2:/vol/proxy
+      - letsencrypt_certs:/etc/letsencrypt/
+    networks: 
+      - lansmartquail
+
+
+  redis:
+    image: redis:3.0
+    restart: always
+    expose:
+      - 6379
+    ports:
+      - "6379:6379"
+    env_file:
+      - .env
+    volumes:
+      - redis_data-qnode12:/data
+    entrypoint: redis-server --appendonly yes --port 6379
+    networks: 
+      - lansmartquail
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    restart: always
+    command: rabbitmq-server
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - .env
+    volumes:
+      - rabbitmq-data-qnd30:/var/lib/rabbitmq
+      - rabbitmq-data-qnd30:/var/log/rabbitmq
+    expose:
+      - 5672
+      - 15672
+    networks:
+        - lansmartquail
+
+volumes:
+  certbot-web_2:
+  proxy-dhparams_2:
+  letsencrypt_certs:
+  static-data-qnd30:
+  smartquaildb_data-qnd30:
+  rabbitmq-data-qnd30:
+  redis_data-qnd30:
+  smartquaildb_data-qnode12:
+
+networks: 
+   lansmartquail:
+       driver: bridge

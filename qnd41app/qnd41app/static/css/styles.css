@@ -1,0 +1,573 @@
+  /* CSS para hacer que la imagen sea responsive */
+  .responsive-img {
+    max-width: 100%;
+    height: auto;
+  }
+
+
+  /* Estilos para las pestañas */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #f8f9fa;
+    padding: 10px;
+    position: relative;
+    margin-bottom: -10px;
+}
+
+.tab-button {
+    background-color: #313030;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    border-top-right-radius: 25px;
+    border-top-left-radius: 25px;
+    border-bottom-left-radius: 25px;
+    border-bottom-right-radius: 25px;
+  }
+
+.tab-button:hover {
+    background-color: #b80505;
+}
+
+
+
+
+
+.dropdown {
+    margin-left: auto;
+    position: relative;
+}
+
+.dropdown label {
+    color: white;
+    margin-right: 10px;
+}
+
+.dropdown select {
+    background-color: #dd5c4c;
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.dropdown select:hover {
+    background-color: #92181e;
+}
+
+/* Estilo de las pestañas */
+.tab-content {
+    display: flex;
+  padding: 46px;
+  border: 1px solid #ddd;
+  margin-top: -376px;
+  background-color: #f9f9f9;
+  width: 20px;
+  top: 3px;
+  height: 1977px;
+  margin-bottom: 215px;
+}
+
+
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+    .carousel-caption h1 {
+        font-size: 1.5em; /* Tamaño de fuente para h1 en pantallas pequeñas */
+    }
+
+    .carousel-caption h2,
+    .carousel-caption h3 {
+        font-size: 1em; /* Tamaño de fuente más pequeño */
+    }
+
+    .tab-button {
+        font-size: 0.9em; /* Tamaño de fuente reducido */
+    }
+
+    .tab-button i {
+        font-size: 0.8em; /* Tamaño de icono más pequeño */
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-caption {
+        bottom: 10px; /* Ajustar posición de la caption */
+    }
+
+    .carousel-caption h1 {
+        font-size: 1.2em; /* Tamaño de fuente aún más pequeño */
+    }
+
+    .carousel-caption h2,
+    .carousel-caption h3 {
+        font-size: 0.9em; /* Tamaño de fuente más pequeño */
+    }
+
+    .tab-button {
+        font-size: 0.8em; /* Tamaño de fuente reducido */
+        padding: 8px; /* Ajustar padding */
+    }
+}
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+    .carousel-caption h1 {
+        font-size: 1.5em; /* Tamaño de fuente para h1 en pantallas pequeñas */
+    }
+
+    .carousel-caption h2,
+    .carousel-caption h3 {
+        font-size: 1em; /* Tamaño de fuente más pequeño */
+    }
+
+    .tab-button {
+        font-size: 0.9em; /* Tamaño de fuente reducido */
+    }
+
+    .tab-button i {
+        font-size: 0.8em; /* Tamaño de icono más pequeño */
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel-caption {
+        bottom: 10px; /* Ajustar posición de la caption */
+    }
+
+    .carousel-caption h1 {
+        font-size: 1.2em; /* Tamaño de fuente aún más pequeño */
+    }
+
+    .carousel-caption h2,
+    .carousel-caption h3 {
+        font-size: 0.9em; /* Tamaño de fuente más pequeño */
+    }
+
+    .tab-button {
+        font-size: 0.8em; /* Tamaño de fuente reducido */
+        padding: 8px; /* Ajustar padding */
+    }
+}
+/* Estilos responsivos */
+@media (max-width: 600px) {
+    .tabs {
+        flex-direction: column;
+    }
+
+    .tab-button {
+        margin: 5px 0;
+        width: 100%; /* Hacer botones de ancho completo */
+        border-radius: 25px;
+    }
+
+    .dropdown {
+        margin-left: 0;
+        width: 100%; /* Hacer el dropdown de ancho completo */
+        display: flex;
+        flex-direction: column; /* Alinear label y select verticalmente */
+    }
+
+    .dropdown label {
+        margin-bottom: 5px; /* Espacio entre label y select */
+    }
+
+    .dropdown select {
+        width: 100%; /* Hacer el select de ancho completo */
+    }
+}
+
+
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Estilos para pantallas pequeñas */
+  @media screen and (max-width: 768px) {
+    .tab-button {
+      font-size: 14px;
+      padding: 10px;
+    }
+  }
+
+  /* Estilos para pantallas muy pequeñas */
+  @media screen and (max-width: 480px) {
+    .tab-button {
+      font-size: 12px;
+      padding: 8px;
+    }
+  }
+
+  /* Estilo para la tabla de información de venta */
+  .info-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .info-table th, .info-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+
+  .info-table th {
+    background-color: #f4f4f4;
+  }
+
+  /* Anchos específicos para las columnas de información */
+  .info-table .info-name {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .info-table .info-value {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Estilos para la barra de notificaciones */
+  .notifications-container {
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+    background-color: #3a3938;
+    color: #fff;
+    padding: 10px;
+    margin-bottom: 0px; /* Añadido para separación */
+    width: 100%;
+    box-sizing: border-box;
+    font-weight: 700;
+  }
+
+  .notifications-content {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 20s linear infinite;
+    max-width: 100%;
+  }
+
+  /* Estilos para el formulario */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espacio entre los campos del formulario y el botón */
+}
+
+/* Estilos para la fila de campos */
+.form-row {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los campos se envuelvan en múltiples líneas si no caben en una sola fila */
+    gap: 15px; /* Espacio entre los campos */
+}
+
+/* Estilos para cada grupo de campo */
+.form-group {
+    flex: 1; /* Permite que cada grupo de campo se ajuste automáticamente */
+    min-width: 150px; /* Establece un ancho mínimo para los campos */
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Espacio entre la etiqueta y el campo del formulario */
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%; /* Asegura que el campo ocupe todo el ancho disponible */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: #d54433;
+    outline: none;
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    background-color: #d54433;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: #d54433;
+}
+
+
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  /* Ajuste para pantallas pequeñas */
+  @media screen and (max-width: 768px) {
+    .notifications-container {
+      font-size: 14px;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    .notifications-container {
+      font-size: 12px;
+    }
+  }
+
+  /* Estilos generales */
+.chart-wrapper {
+    display: flex;
+    flex-direction: column; /* Coloca los elementos en una columna */
+    gap: 20px; /* Espacio entre los elementos */
+}
+
+.filter-form {
+    width: 100%;
+    max-width: 800px; /* Ajusta el tamaño máximo del formulario */
+    margin: 0 auto; /* Centra el formulario en la página */
+}
+
+.chart-container {
+    width: 100%;
+    max-width: 94%; /* Ajusta el tamaño máximo del contenedor del gráfico */
+    margin: 0 auto; /* Centra el gráfico en la página */
+    height: 493px;
+
+}
+
+#chart {
+    width: 100%;
+    height: auto; /* Mantiene la proporción del gráfico */
+}
+
+.text-block {
+    width: 100%;
+    max-width: 800px; /* Ajusta el tamaño máximo del recuadro de texto */
+    margin: 0 auto; /* Centra el recuadro de texto en la página */
+    border: 1px solid gray; /* Borde gris */
+    padding: 10px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    background-color: #f9f9f9;
+}
+
+/* Estilos para pantallas más pequeñas (móviles) */
+@media (max-width: 768px) {
+    .chart-wrapper {
+        gap: 15px; /* Reduce el espacio entre los elementos en móviles */
+    }
+}
+
+
+/* Estilos para comprobante recibo */
+
+#informacion {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h4 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+* Estilo para la sección de información */
+.info-section {
+    margin-bottom: 20px; /* Espacio debajo de cada sección */
+    padding: 10px; /* Espacio interno alrededor del contenido */
+    border: 1px solid #ddd; /* Borde alrededor de la sección */
+    border-radius: 5px; /* Bordes redondeados */
+    background-color: #f9f9f9; /* Fondo ligero para la sección */
+}
+
+/* Estilo para el título de cada sección */
+.info-section h5 {
+    font-size: 1.2em; /* Tamaño de fuente para el título */
+    margin-bottom: 15px; /* Espacio debajo del título */
+    margin-top: 15px;
+    font-weight: bold; /* Negrita para el título */
+    color: #faf6f6; /* Color del texto del título */
+    background-color: #313030;
+}
+
+/* Estilo para la tabla de información */
+.info-table {
+    width: 100%; /* Ancho completo de la tabla */
+    border-collapse: collapse; /* Colapsar bordes para que no haya espacio entre ellos */
+    margin-bottom: 0; /* Eliminar el margen inferior por defecto */
+}
+
+/* Estilo para las celdas de la tabla */
+.info-table th, .info-table td {
+    border: 1px solid #ddd; /* Borde gris claro para las celdas */
+    padding: 12px; /* Espacio interno en las celdas */
+    text-align: left; /* Alineación del texto a la izquierda */
+    vertical-align: middle; /* Alineación vertical al centro */
+}
+
+/* Estilo específico para los títulos de las celdas */
+.info-table th {
+    background-color: #f2f2f2; /* Fondo gris claro para los títulos */
+    font-weight: bold; /* Negrita para los títulos */
+    color: #666; /* Color del texto de los títulos */
+    text-align: left; /* Alineación del texto a la izquierda */
+}
+
+/* Estilo específico para los valores de las celdas */
+.info-table td {
+    background-color: #fff; /* Fondo blanco para los valores */
+    color: #333; /* Color del texto de los valores */
+}
+
+/* Estilo para los valores de la tabla con alineación a la derecha */
+.info-value {
+    text-align: right; /* Alineación a la derecha para los valores numéricos */
+}
+
+
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .info-name, .info-value {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .info-name {
+        background-color: #f4f4f4;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+    .info-value {
+        background-color: #fff;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+    }
+
+    .info-table th, .info-table td {
+        border: none;
+        padding: 10px 5px;
+    }
+
+    .info-table {
+        border: none;
+    }
+
+    #informacion {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    h4 {
+        font-size: 1.2em;
+    }
+
+    .info-name, .info-value {
+        padding: 8px;
+    }
+}
+
+
+
+.container {
+    max-width: 1200px; /* O cualquier valor que prefieras para pantallas grandes */
+    margin: 0 auto;
+    padding: 0 15px; /* Espacio interno para los bordes */
+}
+
+.header-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.header-title {
+    font-size: 1.5rem; /* Tamaño del título ajustado para pantallas grandes */
+    font-weight: bold;
+}
+
+.header-date {
+    margin-top: 5px;
+    font-size: 1rem; /* Tamaño del texto de fecha y hora ajustado */
+    color: #555;
+}
+
+.object-tools {
+    margin-bottom: 20px;
+}
+
+.object-tools a {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.object-tools a:hover {
+    text-decoration: underline;
+}
+
+.info-section {
+    margin-bottom: 20px;
+}
+
+.info-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.info-table th,
+.info-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.info-table th {
+    background-color: #f4f4f4;
+}
+
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+    }
+    
+    .info-table th, 
+    .info-table td {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
+}

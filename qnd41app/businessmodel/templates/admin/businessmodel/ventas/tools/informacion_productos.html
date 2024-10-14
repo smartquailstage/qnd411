@@ -1,0 +1,96 @@
+{% extends "admin/businessmodel/base.html" %}
+{% load i18n static %}
+
+
+{% block content %}
+
+
+
+<div class="container">
+    <div class="results-card">
+<div class="header-container">
+    <div class="header-content">
+        <h4 class="header-title"><i class="fa-solid fa-tag"></i> Detalle de Venta: N.- {{ venta.id }}</h4>
+       <p class="header-date"><i class="fa-regular fa-clock"></i>{{ venta.fecha|date:"d/m/Y" }} - {{ venta.hora|date:"H:i" }}</p> 
+        <div>
+            
+
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Sección 2: Información de la Compra -->
+<div class="info-section">
+    <h5>Información de la Compra</h5>
+    <table class="info-table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Cantidad</th>
+                <th>Costo Unitario</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in venta.items.all %}
+            <tr>
+                <td class="info-value">{{ item.product.nombre }}</td>
+                <td class="info-value">{{ item.quantity }}</td>
+                <td class="info-value">${{ item.price|floatformat:2 }}</td>
+                <td class="info-value">${{ item.get_cost|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="info-value">No hay items en esta venta.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Sección 3: Información de los Montos de Venta -->
+<div class="info-section">
+    <h5>Información de los Montos de Venta</h5>
+    <table class="info-table">
+        <tbody>
+            <tr>
+                <th class="info-name">Descuentos</th>
+                <td class="info-value">$ {{ venta.descuentos|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">Devoluciones</th>
+                <td class="info-value">$ {{ venta.devoluciones|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">Sub Total</th>
+                <td class="info-value">$ {{ venta.Sub_total|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">I.V.A. (%)</th>
+                <td class="info-value">{{ venta.iva_porcentaje }} %</td>
+            </tr>
+            <tr>
+                <th class="info-name">Valor I.V.A.</th>
+                <td class="info-value">$ {{ venta.Valor_Iva|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <th class="info-name">Total a Pagar</th>
+                <td class="info-value">$ {{ venta.total_a_pagar|floatformat:2 }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul class="object-tools">
+        <li>
+            <a href="{% url 'businessmodel:admin_comprobante_pdf' venta_id=venta.id %}">Imprimir</a>
+        </li>
+    </ul>
+
+</div>
+
+</div>
+</div>
+
+{% endblock %}

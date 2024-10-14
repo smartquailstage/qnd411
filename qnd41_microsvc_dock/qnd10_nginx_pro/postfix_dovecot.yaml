@@ -1,0 +1,88 @@
+version: "3.3"
+
+services:
+
+  smartquaildb:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    restart: always
+    command: -p 5432
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    volumes:
+      - smartquaildb_data-qnd41:/var/lib/postgresql/data/
+    networks:
+      - lansmartquail
+
+  postfix:
+    image: smartquail/qnd10postfix:prod
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+    expose:
+      - "25"
+    ports:
+      - "25:25"
+    volumes:
+      - postfix-spools:/var/spool/postfix
+      - mail:/var/mail/users
+      - postfix-logs:/var/log
+    networks:
+      - lansmartquail
+    
+
+  dovecot:
+    image: smartquail/qnd10dovecot:prod
+    container_name: dovecot
+    restart: always
+    depends_on:
+      - smartquaildb
+      - postfix
+    volumes:
+      - dovecot:/etc/dovecot
+      - mail:/var/mail/users
+      - postfix-spools:/var/spool/postfix
+    ports:
+      - "143:143"   # IMAP
+      - "110:110"   # POP3
+      - "993:993"   # IMAPS (secure IMAP)
+      - "995:995"   # POP3S (secure POP3)
+    environment:
+      - DOVECOT_USER=info
+      - DOVECOT_PASSWORD=ms95355672
+      - DOVECOT_AUTH_SOCKET_PATH=/var/spool/postfix/private/auth
+    networks:
+      - lansmartquail
+
+
+
+  memcached:
+    image: memcached:latest
+    container_name: memcached
+    networks:
+      - lansmartquail
+    ports:
+      - "11211:11211" 
+
+
+
+
+volumes:
+  smartquaildb_data-qnd41:
+  postfix-spools:
+  postfix-mail:
+  postfix-logs:
+  dovecot:
+  mail:
+
+
+
+
+networks:
+  lansmartquail:
+    driver: bridge

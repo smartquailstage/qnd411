@@ -1,0 +1,43 @@
+{% extends "admin/businessmodel/base.html" %}
+{% load i18n static %}
+
+{% block content %}
+
+<div class="container">
+    <div class="results-card">
+        <h5>Ver el Detalle de venta N.- {{ venta.id }} por:</h5>
+
+        <div class="button-container">
+            <a href="{% url 'businessmodel:informacion_venta' venta_id=venta.id %}" class="filter-button"><i class="fa-solid fa-street-view"></i> Cliente</a>
+            <a href="{% url 'businessmodel:informacion_venta_productos' venta_id=venta.id %}" class="filter-button"><i class="fa-solid fa-boxes-packing"></i> Producto</a>
+        </div>
+<hr>
+<h4><i class="fa-solid fa-tag"></i> Detalle De Ventas</h4>
+        <p>
+            En la sección de Smart Business Analytics dedicada a la información del comprobante de venta, se proporciona un desglose detallado de cada transacción de compra. Esta sección incluye datos esenciales como:
+        </p>
+        
+        <ul>
+            <li>Número de comprobante: Identificación única de la transacción.</li>
+            <li>Fecha y hora: Momento en que se realizó la compra.</li>
+            <li>Datos del cliente: Nombre, dirección y, si aplica, número de identificación.</li>
+            <li>Detalles de los productos: Lista de artículos comprados, incluyendo descripciones, cantidades, precios unitarios y totales.</li>
+            <li>Método de pago: Información sobre cómo se realizó el pago (efectivo, tarjeta de crédito, transferencia, etc.).</li>
+            <li>Impuestos aplicados: Detalle de impuestos como IVA, si corresponde.</li>
+            <li>Totales: Suma total de la transacción, incluyendo impuestos y descuentos aplicables.</li>
+            <li>Observaciones: Notas adicionales relevantes a la compra.</li>
+        </ul>
+
+        <p>
+            Esta información permite un análisis exhaustivo de las ventas, facilitando la toma de decisiones informadas y la identificación de patrones de compra. Además, ayuda a mantener un registro claro y accesible para auditorías y análisis futuros.
+        </p>
+
+        <p class="small-text">
+            <i>Nota: Esta aplicación está diseñada para mejorar la gestión de ventas y facilitar el análisis de datos. Asegúrese de revisar la documentación para obtener más información sobre sus características y funcionalidades.</i>
+        </p>
+    
+    </div>
+</div>
+
+{% endblock %}
+

@@ -1,0 +1,209 @@
+@font-face {
+    font-family: 'Pacifico';
+    src: url('pacifico.ttf') format('truetype'); /* Asegúrate de que la ruta y el formato sean correctos */
+}
+
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-weight: 400;
+    src: url('sourcesanspro-regular.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Source Sans Pro';
+    font-weight: 700;
+    src: url('sourcesanspro-bold.otf') format('opentype');
+}
+
+@page {
+    margin: 2cm;
+    size: A4 portrait; 
+}
+
+@bottom-left {
+    color: #1ee494;
+    content: ('../static/img/logo_smartquailGray.png'); /* Usa url() para imágenes */
+    font-size: 8pt; 
+}
+
+@bottom-right {
+    color: #a9a;
+    content: 'info@smartbusinessanalytics.smartquail.io| smartquail.io';
+    font-size: 8pt; 
+}
+
+html {
+    color: #14213d;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 10pt;
+    line-height: 1.4;
+}
+
+body {
+    margin: 0;
+}
+
+header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.logo {
+    max-width: 150px;
+    height: auto;
+}
+
+.pagination {
+    margin-top: 10px;
+    font-size: 12pt;
+    color: #14213d;
+}
+
+h1 {
+    color: #1ee494;
+    font-family: 'Pacifico', cursive;
+    font-size: 30pt; 
+    margin: 0;
+}
+
+aside {
+    display: flex;
+    margin: 0em 0;
+}
+
+aside address {
+    font-style: normal;
+}
+
+aside address#from {
+    text-align: left;
+    color: #a9a;
+    flex: 1;
+}
+
+aside address#to {
+    text-align: left;
+}
+
+dl {
+    position: absolute;
+    right: 0;
+    text-align: left;
+    top: 0;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    border-bottom: 0.2mm solid #a9a;
+    color: #a9a;
+    font-size: 8pt; 
+    font-weight: 400;
+    padding-bottom: 0.2cm; 
+    text-transform: uppercase;
+}
+
+td {
+    padding-top: 5mm; 
+}
+
+td:last-of-type {
+    color: #1ee494;
+    font-weight: bold;
+    text-align: right;
+}
+
+th, td {
+    text-align: center;
+}
+
+th:first-of-type, td:first-of-type {
+    text-align: left;
+}
+
+th:last-of-type, td:last-of-type {
+    text-align: right;
+}
+
+footer {
+    content: '';
+    display: block;
+    height: 4cm; 
+}
+
+table#total {
+    background: #f6f6f6;
+    border: 1cm solid #f6f6f6;
+    bottom: 0;
+    font-size: 16pt; 
+    margin: 0 -2cm; 
+    position: absolute;
+    width: 16cm; 
+}
+
+.object-tools {
+    margin: 10px 0;
+    padding: 10px;
+    list-style: none;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+.object-tools a {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.object-tools a:hover {
+    background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .info-table {
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+    }
+
+    .info-table th, .info-table td {
+        display: block;
+        text-align: left;
+    }
+
+    .info-table th {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .info-table td {
+        border: 1px solid #ddd;
+        margin: 0 0 1em 0;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .info-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .object-tools {
+        text-align: center;
+        margin: 10px 0;
+    }
+}

@@ -1,0 +1,137 @@
+###############
+# General
+###############
+
+# Main domain and hostname
+mydomain = {{ DOMAIN }}
+myhostname = {{ HOSTNAME }}
+myorigin = $mydomain
+
+home_mailbox = Maildir/
+
+# Message size limit
+message_size_limit = {{ MESSAGE_SIZE_LIMIT }}
+
+# Relayed networks
+mynetworks = 127.0.0.0/8, [::1]/128, 172.18.0.0/16 ,64.233.160.0/19, 137.184.0.57/32, 66.102.0.0/20, 66.249.80.0/20, 72.14.192.0/18, 74.125.0.0/16, 108.177.0.0/17, 173.194.0.0/16, 209.85.128.0/17, 216.58.192.0/19, 35.190.0.0/17, {{ RELAYNETS }}
+
+
+inet_interfaces = all
+inet_protocols = ipv4
+
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+
+transport_maps = pcre:/etc/postfix/transport.pcre
+
+# Empty alias list to override the configuration variable and disable NIS
+alias_maps = 
+
+# No destination restrictions
+mydestination = 
+
+# Relayhost if any is configured
+relayhost = [smtp.mail.smartquail.io]:587
+relay_domains = *
+
+
+
+###############
+# Restrictions
+###############
+
+# Delay all rejects until all information can be logged
+smtpd_delay_reject = no
+append_dot_mydomain = no
+
+# Helo restrictions are specified for smtp only in master.cf
+smtpd_helo_required = yes
+
+smtpd_sender_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_non_fqdn_sender,
+    reject_unknown_sender_domain,
+    reject_unlisted_sender,
+    reject_sender_login_mismatch,
+    permit
+
+smtpd_recipient_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination,
+    permit
+
+smtpd_relay_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination,
+
+smtpd_client_restrictions =
+    permit_mynetworks,
+    permit_sasl_authenticated,
+    reject_unauth_destination
+
+
+smtpd_relay_before_recipient_restrictions = yes
+
+###############
+# TLS Settings
+###############
+
+smtp_tls_security_level = may
+smtpd_tls_security_level = may
+smtpd_tls_auth_only = no
+smtpd_tls_cert_file = /etc/ssl/certs/fullchain.pem
+smtpd_tls_key_file = /etc/ssl/private/privkey.pem
+smtpd_tls_received_header = yes
+smtp_tls_note_starttls_offer = yes
+smtpd_tls_loglevel = 1
+smtpd_tls_session_cache_timeout = 3600s
+
+tls_random_source = dev:/dev/urandom
+tlsmgr_cache_type = dovecot
+tls_session_cache_database = dovecot
+tls_session_cache_timeout = 1h
+tls_session_cache_size = 100000
+
+# Uncomment if using memcached for TLS session caching
+# tls_session_cache = memcached
+# tls_session_cache_memcached_server = memcached:11211
+# tls_session_cache_memcached_key = tls_cache
+
+smtpd_tls_protocols = !SSLv2, !SSLv3, !TLSv1, !TLSv1.1, TLSv1.2, TLSv1.3
+smtpd_tls_ciphers = high
+smtp_tls_loglevel = 1
+
+###############
+# SASL Settings
+###############
+
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_authenticated_header = yes
+smtpd_sasl_security_options = noanonymous
+smtpd_sasl_tls_security_options = noanonymous
+smtpd_sasl_local_domain = $myhostname
+
+###############
+# Extra Settings
+###############
+
+maillog_file = /dev/stdout
+
+##############
+# PostgreSQL configuration
+###############
+
+virtual_mailbox_base = /var/mail
+
+#virtual_mailbox_domains = mail.smartquail.io
+virtual_mailbox_domains = pgsql:/etc/postfix/sql/virtual_mailbox_domains.cf
+virtual_mailbox_maps = pgsql:/etc/postfix/sql/virtual_mailbox_maps.cf
+virtual_alias_maps = pgsql:/etc/postfix/sql/virtual_alias_maps.cf
+
+virtual_uid_maps = static:1000
+virtual_gid_maps = static:1000
+virtual_alias_domains = *

@@ -1,0 +1,197 @@
+@font-face {
+    font-family: Pacifico;
+    src: url(pacifico.ttf);
+}
+@font-face {
+    font-family: Source Sans Pro;
+    font-weight: 400;
+    src: url(sourcesanspro-regular.otf);
+}
+@font-face {
+    font-family: Source Sans Pro;
+    font-weight: 700;
+    src: url(sourcesanspro-bold.otf);
+}
+
+@page {
+    font-family: Pacifico;
+    margin: 2cm; /* Reduce los márgenes para aprovechar el espacio de la página */
+    size: A4 portrait; /* Define la orientación vertical (retrato) */
+    @bottom-left {
+        color: #1ee494;
+        content: '♥ Thank you!';
+        font-size: 8pt; /* Ajusta el tamaño del texto para que no ocupe mucho espacio */
+    }
+    @bottom-right {
+        color: #a9a;
+        content: 'contact@courtbouillon.org | courtbouillon.org';
+        font-size: 8pt; /* Ajusta el tamaño del texto para que no ocupe mucho espacio */
+    }
+}
+
+html {
+    color: #14213d;
+    font-family: Source Sans Pro;
+    font-size: 10pt; /* Reduce el tamaño de la fuente para ajustar el contenido */
+    line-height: 1.4; /* Ajusta el interlineado */
+}
+body {
+    margin: 0;
+}
+
+h1 {
+    color: #1ee494;
+    font-family: Pacifico;
+    font-size: 30pt; /* Ajusta el tamaño del título para que se ajuste mejor */
+    margin: 0;
+}
+
+aside {
+    display: flex;
+    margin: 1em 0 2em; /* Reduce los márgenes para que el contenido no se salga de la página */
+}
+aside address {
+    font-style: normal;
+    white-space: pre-line;
+}
+aside address#from {
+    color: #a9a;
+    flex: 1;
+}
+aside address#to {
+    text-align: right;
+}
+
+dl {
+    position: absolute;
+    right: 0;
+    text-align: right;
+    top: 0;
+}
+dt, dd {
+    display: inline;
+    margin: 0;
+}
+dt {
+    color: #a9a;
+}
+dt::before {
+    content: '';
+    display: block;
+}
+dt::after {
+    content: ':';
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th {
+    border-bottom: .2mm solid #a9a;
+    color: #a9a;
+    font-size: 8pt; /* Reduce el tamaño de la fuente en las cabeceras de la tabla */
+    font-weight: 400;
+    padding-bottom: .2cm; /* Ajusta el padding para que se ajuste mejor */
+    text-transform: uppercase;
+}
+td {
+    padding-top: 5mm; /* Reduce el padding para ajustar el contenido */
+}
+td:last-of-type {
+    color: #1ee494;
+    font-weight: bold;
+    text-align: right;
+}
+th, td {
+    text-align: center;
+}
+th:first-of-type, td:first-of-type {
+    text-align: left;
+}
+th:last-of-type, td:last-of-type {
+    text-align: right;
+}
+footer {
+    content: '';
+    display: block;
+    height: 4cm; /* Reduce la altura del footer para ajustar el contenido */
+}
+table#total {
+    background: #f6f6f6;
+    border-color: #f6f6f6;
+    border-style: solid;
+    border-width: 1cm 2cm; /* Ajusta el ancho del borde para que se ajuste mejor */
+    bottom: 0;
+    font-size: 16pt; /* Reduce el tamaño de la fuente para ajustar el contenido */
+    margin: 0 -2cm; /* Ajusta el margen para que el contenido se ajuste a la página */
+    position: absolute;
+    width: 16cm; /* Ajusta el ancho para que se ajuste mejor */
+}
+
+
+/* General styles for object-tools */
+.object-tools {
+    margin: 10px 0;
+    padding: 10px;
+    list-style: none;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+}
+
+/* Styling for the button in object-tools */
+.object-tools a {
+    display: inline-block;
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+/* Hover effect for the button */
+.object-tools a:hover {
+    background-color: #0056b3;
+}
+
+/* Responsive design adjustments */
+@media (max-width: 768px) {
+    .info-table {
+        width: 100%;
+        display: block;
+        overflow-x: auto;
+    }
+
+    .info-table th, .info-table td {
+        display: block;
+        text-align: left;
+    }
+
+    .info-table th {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+
+    .info-table td {
+        border: 1px solid #ddd;
+        margin: 0 0 1em 0;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .info-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 10px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .object-tools {
+        text-align: center;
+        margin: 10px 0;
+    }
+}

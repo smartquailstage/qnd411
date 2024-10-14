@@ -1,0 +1,309 @@
+{% extends "admin/businessmodel/base.html" %}
+{% load i18n static %}
+
+{% block content %}
+<link type="text/css" rel="stylesheet" href="{% static '/css/inicio.css' %}">
+
+<div class="container">
+
+
+
+    <div class="chart-container">
+       
+
+        <div class="carousel">
+            <div class="carousel-item active">
+                <img src="{% static 'img/test2.png' %}" alt="Imagen 2">
+                   
+                    <div class="carousel-caption">
+                        <h1 style="color: #ffff;">
+                        Ingresos Operativos 
+                        </h1>
+                    
+                        <h2 style="color: #ffff;">Información de venta</h2>
+                        <hr style="color: #fefefe;">
+                    
+                        <h3 style="color: #ffff;">
+                            <button class="tab-button-2" onclick="window.location.href='{% url 'businessmodel:informacion_venta' venta_id=venta.id %}'">
+                                <p style="color: #ffff; font-size: 24px;"><i class="fa-solid fa-tag" aria-hidden="true"></i>
+
+                                    Detalle
+                    
+                                    {% if systeminfo and systeminfo.detalle_ventas == '+A' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+I+D' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+ML' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+AI' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                        <span style="color: rgb(0, 252, 63); font-size: 0.55em; vertical-align: super;"> +AI </span>
+                                    {% endif %}
+
+                                </p>
+                            </button>
+                         
+                        </h3>
+                    
+                 
+
+                        <h3 style="color: #ffff;">
+                        <button class="tab-button-2" onclick="window.location.href='{% url 'businessmodel:historial_ventas_productos' venta_id=venta.id %}'">
+                         <p style="color: #ffffff; font-size: 24px;"> <i class="fa-solid fa-list" aria-hidden="true"></i>
+
+                                Historial 
+                              
+                                   
+                                    {% if systeminfo and systeminfo.historial_ventas == '+A' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                    {% elif systeminfo and systeminfo.historial_ventas == '+I+D' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D</span>
+                                    {% elif systeminfo and systeminfo.historial_ventas == '+ML' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                    {% elif systeminfo and systeminfo.historial_ventas == '+AI' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                        <span style="color: rgb(0, 252, 63); font-size: 0.55em; vertical-align: super;"> +AI </span>
+                                    {% endif %}
+                        </p>
+                            </button>
+                        </h3>
+                        <hr style="color: #fefefe;">
+                    </div>
+
+
+
+            </div>
+
+            <div class="carousel-item active">
+                    <img src="{% static '/img/test2.png' %}" alt="Imagen 1">
+                   
+                    <div class="carousel-caption">
+                        <h1 style="color: #ffff;">
+                        Ingresos Operativos 
+                        </h1>
+                    
+                        <h2 style="color: #ffff;">Analíticas de venta</h2>
+                        <hr style="color: #fefefe;">
+                    
+                        <h3 style="color: #ffff; font-size: 1.50rem; ">
+                            <button class="tab-button-2" onclick="window.location.href='{% url 'businessmodel:metricas_ventas' venta_id=venta.id %}'">
+                                <p style="color: #ffffff; font-size: 24px;"> <i class="fa-solid fa-chart-line"></i>
+
+                                    Distribución  
+                    
+                                    {% if systeminfo and systeminfo.detalle_ventas == '+A' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+I+D' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+ML' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+AI' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color: rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                        <span style="color: rgb(0, 252, 63); font-size: 0.55em; vertical-align: super;"> +AI </span>
+                                    {% endif %}
+
+                                </p>
+                            </button>
+                         
+                        </h3>
+                    
+                 
+
+                        <h3 style="color: #ffff;font-size: 1.50rem;">
+                        <button class="tab-button-2" onclick="window.location.href='{% url 'businessmodel:admin_ventas_detail' venta_id=venta.id %}'">
+                            <p style="color: #ffffff; font-size: 24px;"> <i class="fa-solid fa-chart-simple"></i>
+
+                                   Frecuencias 
+                              
+                                   
+                                    {% if systeminfo and systeminfo.historial_ventas == '+A' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                    {% elif systeminfo and systeminfo.historial_ventas == '+I+D' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                        <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D</span>
+                                    {% elif systeminfo and systeminfo.historial_ventas == '+ML' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                    {% elif systeminfo and systeminfo.historial_ventas == '+AI' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color:  rgb(240, 232, 0);font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                        <span style="color: rgb(0, 252, 63); font-size: 0.55em; vertical-align: super;"> +AI </span>
+                                    {% endif %}
+                            </p>
+                            </button>
+                         </h3>
+
+                        <h3 style="color: #ffff;font-size: 1.50rem;">
+                            <button class="tab-button-2" onclick="window.location.href='{% url 'businessmodel:admin_ventas_detail' venta_id=venta.id %}'">
+                                
+                                <i class="fa-solid fa-chart-pie"></i>
+    
+                                       Secciones 
+                                  
+                                       
+                                        {% if systeminfo and systeminfo.historial_ventas == '+A' %}
+                                            <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                        {% elif systeminfo and systeminfo.historial_ventas == '+I+D' %}
+                                            <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                            <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D</span>
+                                        {% elif systeminfo and systeminfo.historial_ventas == '+ML' %}
+                                            <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                            <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                            <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                        {% elif systeminfo and systeminfo.historial_ventas == '+AI' %}
+                                            <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                            <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                            <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                            <span style="color: rgb(0, 252, 63); font-size: 0.55em; vertical-align: super;"> +AI </span>
+                                        {% endif %}
+                                </button>
+                        </h3>
+                        <hr style="color: #fefefe;">
+                    </div>
+
+
+
+            </div>
+            <div class="carousel-item active">
+                    <img src="{% static '/img/test2.png' %}" alt="Imagen 1">
+                   
+                    <div class="carousel-caption">
+                        <h1 style="color: #ffff;">
+                        Ingresos Operativos 
+                        </h1>
+                    
+                        <h2 style="color: #ffff;"> Métricas de venta</h2>
+                        <hr style="color: #fefefe;">
+                    
+                        <h3 style="color: #ffff; ">
+                            <button class="tab-button-2" onclick="window.location.href='{% url 'businessmodel:admin_ventas_detail' venta_id=venta.id %}'">
+                                <p style="color: #ffffff; font-size: 24px;"> <i class="fa-solid fa-square-poll-vertical"></i>
+
+                                   Resumen 
+                    
+                                    {% if systeminfo and systeminfo.detalle_ventas == '+A' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+I+D' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A</span>
+                                        <span style="color:  rgb(240, 232, 0);font-size: 0.55em; vertical-align: super;"> +I +D</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+ML' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                    {% elif systeminfo and systeminfo.detalle_ventas == '+AI' %}
+                                        <span style="color: rgb(0, 179, 255); font-size: 0.55em; vertical-align: super;">+A </span>
+                                        <span style="color:  rgb(240, 232, 0); font-size: 0.55em; vertical-align: super;"> +I +D </span>
+                                        <span style="color: rgb(241, 140, 32); font-size: 0.55em; vertical-align: super;"> +ML</span>
+                                        <span style="color: rgb(0, 252, 63); font-size: 0.55em; vertical-align: super;"> +AI </span>
+                                    {% endif %}
+
+                                </p>
+                            </button>
+                         
+                        </h3>
+                    
+                 
+
+                    </div>
+
+
+
+            </div>
+
+        </div>
+            <div class="carousel-dots">
+                <span class="dot active" onclick="currentSlide(0)"></span>
+                <span class="dot" onclick="currentSlide(1)"></span>
+                <span class="dot" onclick="currentSlide(2)"></span>
+            </div>
+    </div>
+
+
+</div>
+
+
+
+<script>
+let currentIndex = 0;
+const slides = document.querySelectorAll('.carousel-item');
+const dots = document.querySelectorAll('.dot');
+
+// Variables para el deslizamiento
+let startX;
+let endX;
+
+function showSlide(index) {
+    slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        dots[i].classList.remove('active');
+    });
+    slides[index].classList.add('active');
+    dots[index].classList.add('active');
+}
+
+function nextSlide() {
+    currentIndex = (currentIndex + 1) % slides.length;
+    showSlide(currentIndex);
+}
+
+function previousSlide() {
+    currentIndex = (currentIndex - 1 + slides.length) % slides.length; // Cálculo circular
+    showSlide(currentIndex);
+}
+
+function currentSlide(index) {
+    currentIndex = index;
+    showSlide(currentIndex);
+}
+
+// Cambia de imagen automáticamente cada 60 segundos
+setInterval(nextSlide, 60000); // 60000 ms = 1 minuto
+
+// Muestra la primera imagen al cargar
+showSlide(currentIndex);
+
+// Manejo de deslizamiento táctil
+const carousel = document.querySelector('.carousel');
+
+carousel.addEventListener('touchstart', (event) => {
+    startX = event.touches[0].clientX; // Captura la posición inicial del toque
+});
+
+carousel.addEventListener('touchend', (event) => {
+    endX = event.changedTouches[0].clientX; // Captura la posición final del toque
+    handleSwipe();
+});
+
+function handleSwipe() {
+    const threshold = 50; // Umbral de deslizamiento
+    if (startX - endX > threshold) {
+        // Deslizar hacia la izquierda
+        nextSlide();
+    } else if (endX - startX > threshold) {
+        // Deslizar hacia la derecha
+        previousSlide();
+    }
+}
+
+
+
+</script>
+<script type="text/javascript" src="{% static 'js/tools.js' %}"></script>
+{% endblock %}

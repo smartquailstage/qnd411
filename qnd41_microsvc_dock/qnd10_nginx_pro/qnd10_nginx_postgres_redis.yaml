@@ -1,0 +1,96 @@
+version: "3.3"
+
+services:
+  qnd41app:
+    image: smartquail/qnd41app:latest
+    restart: unless-stopped
+    environment:
+      - PORT=9000
+    env_file:
+      - .env
+    depends_on:
+      - smartquaildb
+    expose:
+      - 9000
+    ports:
+      - "9000:9000"
+    volumes:
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/staticfiles
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/media
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/static
+    networks: 
+      - lansmartquail
+
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+    networks: 
+      - lansmartquail
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: redisinsight
+    ports:
+      - "8001:80"
+    restart: always
+    networks: 
+      - lansmartquail
+
+
+
+  smartquaildb:
+    image: postgres:13-alpine
+    env_file:
+      - .env
+    restart: always
+    command: -p 5432
+    expose:
+     - 5432
+    volumes:
+      - smartquaildb_data-qnd41:/var/lib/postgresql/data/
+    networks: 
+      - lansmartquail
+
+
+  nginx:
+    image: smartquail/qnd41_nginx:prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PORT=80
+    depends_on:
+      - qnd41app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/staticfiles
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/media
+      - static-data-qnd41:/qnd41app/qnd41app/qnd41app/static
+      - certbot-web_2:/vol/www
+      - proxy-dhparams_2:/vol/proxy
+      - letsencrypt_certs:/etc/letsencrypt/
+    networks: 
+      - lansmartquail
+
+
+volumes:
+  redis_data:
+  certbot-web_2:
+  proxy-dhparams_2:
+  letsencrypt_certs:
+  static-data-qnd41:
+  smartquaildb_data-qnd41:
+
+networks:
+   lansmartquail:
+       driver: bridge
+                     
+

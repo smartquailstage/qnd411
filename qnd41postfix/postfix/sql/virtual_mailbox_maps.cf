@@ -1,0 +1,7 @@
+user = sqadmindb
+password = smartquaildev1719pass
+dbname = POSFIXDB
+hosts = smartquaildb
+
+# Query para verificar la existencia de un buzón de correo
+query = SELECT 1 FROM virtual_users WHERE email='%s'
