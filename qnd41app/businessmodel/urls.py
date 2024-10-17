@@ -17,13 +17,18 @@ urlpatterns = [
     path('historical-incomes-amount/<int:venta_id>/', views.history_incomes_amount, name='history_incomes_amount'),
     path('historical-incomes-product/<int:venta_id>/', views.history_incomes_product, name='history_incomes_product'),
     path('admin/historial_ventas/<int:venta_id>/pdf/', views.admin_comprobante_historial_pdf, name='admin_comprobante_historial_pdf'),
+    path('admin/historial_ventas_productos/<int:venta_id>/pdf/', views.admin_comprobante_historial_product_pdf, name='admin_comprobante_historial_product_pdf'),
+    path('admin/historial_ventas_categorias/<int:venta_id>/pdf/', views.admin_comprobante_historial_category_pdf, name='admin_comprobante_historial_category_pdf'),
 
     path('admin/ventas/metricas/<int:venta_id>/', views.admin_metricas, name='admin_metricas'),
     path('income-scatter/<int:venta_id>/', views.income_scatter, name='income_scatter'),
     path('metricas-ventas-pie/time/<int:venta_id>/', views.pie_incomes_time, name='pie_incomes_time'),
     path('metricas-ventas-pie/product/<int:venta_id>/', views.pie_incomes_product, name='pie_incomes_product'),
     path('histogram-income-amount/<int:venta_id>/', views.income_histogram_amount, name='income_histogram_amount'),
+    path('histogram-income-amount-report/<int:venta_id>/', views.income_histogram_amount_pdf, name='income_histogram_amount_pdf'),
     path('histogram-income-product/<int:venta_id>/', views.income_histogram_product, name='income_histogram_product'),
+    path('histogram-income-product-report/<int:venta_id>/', views.income_histogram_product_pdf, name='income_histogram_product_pdf'),
     path('histogram-income-category/<int:venta_id>/', views.income_histogram_category, name='income_histogram_category'),
+    path('histogram-income-category-report/<int:venta_id>/', views.income_histogram_category_pdf, name='income_histogram_category_pdf'),
     path('admin/Distribución-de-ventas/<int:venta_id>/pdf/', views.metricas_ventas_comprobante, name='metricas_ventas_comprobante'),
 ]

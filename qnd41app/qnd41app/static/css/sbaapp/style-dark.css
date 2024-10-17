@@ -4,7 +4,7 @@ body , .main-header , .loader-wrap , .slider-counter_wrap , .bottom-panel , .sea
     background: #161616;
 }
 p , .nav-holder nav li a , .sb-widget p  a , .sb-widget-wrap h3 , .share-btn span , .scroll-down-wrap span  , .search-input input::-webkit-input-placeholder  , .search-input input  , .section-title h3  , .column-wrapper_text p , .inline-facts .num , .custom-skillbar-title span , .skill-bar-percent , .serv-item h4 a   , .testi-item h3 , .testilider .swiper-slide.swiper-slide-active .testi-item p   , .policy-box , .post.fw-post h2 , .post.fw-post h2 a , .pr-tags span , .author-content h5 a , #comments-title, #reply-title , .fn a , .custom-form input::-webkit-input-placeholder, .custom-form input , .custom-form textarea , .custom-form textarea::-webkit-input-placeholder , .contact-details ul li a , .gallery-filters a.gallery-filter-active , .vis-thumb-info .thumb-info h3, .vis-thumb-info .thumb-info h3 a , .fixed-bottom-content .gallery-filters a.gallery-filter-active , .pr-det-container h2 , .caption-wrap ul li span , .content-nav li a , .content-nav li a.ln i, .content-nav li a.rn i, .content-nav li a span.tooltip , .closedet_style , .single-carousel-control .fw-carousel-counter span , .blog-title-opt li a:hover, .pr-tags li a:hover , .custom-form textarea, .custom-form input[type="text"], .custom-form input[type=email], .custom-form input[type=password] {
-	color:#fff;
+	color:#7d7d7d;
 }
 .search-input:before  , #footer-twiit div.user a   , .share-btn , .section-title h4 , .inline-facts h6 , .serv-item ul li a , .serv-item ul li  , .testi-item p  , blockquote p , .comment-meta a , .comment-meta , .vis-thumb-info .thumb-info p  , .fs-mode-title {
 	color:rgba(255,255,255,0.8);
@@ -27,7 +27,7 @@ blockquote:before {
 .hs_init .swiper-scrollbar-drag , .double-bounce1,.double-bounce2 , .custom-skillbar , .sec-dec , .single-carousel-control .fw-carousel-counter:before , .single-carousel-control .fw-carousel-counter:after   {
 	background:rgba(255,255,255,0.3);
 }
-.custom-form textarea, .custom-form input[type="text"], .custom-form input[type=email], .custom-form input[type=password] {
+.custom-form textarea, .custom-form input[type="text"], .custom-form input[type=email], .custom-form input[type=password] input[type=date] input[type=time] {
 	background:rgba(255,255,255,0.1);
 	border-color:transparent
 }

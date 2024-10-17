@@ -23,6 +23,11 @@
                         <a class="tab-button active" href="{% url 'businessmodel:history_incomes_product' venta_id=venta.id %}">
                             <i class="fa-solid fa-list-check"></i>
                             <h3>Income Product History</h3>
+                            
+                        </a>
+                        <a class="tab-button" href="{% url 'businessmodel:history_incomes_category' venta_id=venta.id %}">
+                            <i class="fa-solid fa-list-check"></i>
+                            <h3>Income Category History</h3>
                         </a>
                     </div>
 

@@ -299,6 +299,15 @@ blockquote p {
 	cursor:pointer;
 }
 
+.sb-button , .monitoring-btn {
+	float:right;
+	width:40px;
+	height:40px;
+	position:relative;
+	top:34px;
+	cursor:pointer;
+}
+
 .sb-button , .rule-btn {
 	float:right;
 	width:40px;
@@ -326,6 +335,41 @@ blockquote p {
 	color:#292929;
 	font-weight:800;
 }
+
+.monitoring-btn {
+	line-height:40px;
+	margin-right:10px;
+	font-size:19px;
+	top:28px;
+	color:#292929;
+	font-weight:800;
+}
+
+
+.monitoring-btn span {
+	position:absolute;
+	width:100px;
+	text-align:center;
+	bottom:-35px;
+	left:0;
+	margin-left:-29px;
+	font-size:12px;
+	color:#860a0a;
+ 	font-weight:100;
+    font-family: 'Playfair+Display', serif;
+    font-style: italic;
+	opacity:0;
+	visibility:hidden;
+	transition: all .2s ease-in-out;
+}
+.monitoring-btn:hover span {
+	visibility:visible;
+	opacity:1;
+	bottom:-25px;
+	color:red
+}
+
+
 .share-btn span {
 	position:absolute;
 	width:100px;

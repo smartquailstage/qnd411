@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{% include 'admin/businessmodel/Sales/tools/distributions-incomes/header_distribution.html' %}
+{% include 'admin/businessmodel/Sales/tools/histogram-incomes/product/header_frequency.html' %}
 
 
 
@@ -20,18 +20,23 @@
                     <!-- Pestañas -->
                     <div class="tabs">
                         <a class="tab-button" href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                         
                             <h3>Incomes Frequency for Amounts</h3>
                         </a>
                         <a class="tab-button active" href="{% url 'businessmodel:income_histogram_product' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                      
                             <h3>Incomes Frequency for Product</h3>
                         </a>
 
                         <a class="tab-button" href="{% url 'businessmodel:income_histogram_category' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                        
                             <h3>Incomes Frequency for Product Category</h3>
                         </a>
+
+                        <button class="tab-button active" onclick="openTab(event, 'distributionProducts')">
+                        
+                            <h3>Incomes product frequency results</h3>
+                        </button>
 
                     </div>
 
@@ -64,8 +69,8 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Cantidad de tickets</td>
-                                        <td>{{ cantidad_ventas }}</td>
+                                        <td>Cantidad de Producto vendido</td>
+                                        <td>{{ cantidad_productos_vendidos }}</td>
                                         <td>{{ cantidad_neta_ventas|floatformat:0 }}</td>
                                         <td>
                                             ({{ porcentaje_cantidad_ventas|floatformat:0 }}%) 
@@ -87,7 +92,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Monto total de venta</td>
+                                        <td> Ventas por producto  </td>
                                         <td>$ {{ venta_total|floatformat:2 }}</td>
                                         <td>$ {{ total_monto_neto|floatformat:2 }}</td>
                                         <td>({{ porcentaje_monto_ventas|floatformat:0 }}%)
@@ -109,7 +114,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Monto de I.V.A (15%)</td>
+                                        <td>Frecuencia de productos</td>
                                         <td>$ {{ quince_por_ciento|floatformat:2 }}</td>
                                         <td>$ {{ total_monto_iva_neto|floatformat:2 }}</td>
                                         <td>({{ porcentaje_iva_ventas|floatformat:0 }}%)
@@ -221,7 +226,9 @@
                                         {% endif %}
                                     </tr>
                                     <tr>
+                                        <td>{{ cantidad_productos_vendidos_por_producto }}</td>
                                         <td>Ingresos Operativos</td>
+                                        <td>{{ ventas_por_producto }}</td>
                                         <td>${{ total_monto|floatformat:2 }}</td>
                                         <td>$ {{ total_monto_neto|floatformat:2 }}</td>
                                         <td>({{ porcentaje_promedio_ingresos|floatformat:2 }}%)
@@ -241,9 +248,47 @@
                                                 </div>
                                             </div>
                                         </td>
+                                       
                                     </tr>
+                                    {% if distribucion_gateway %}
+                                    {% for gateway in distribucion_gateway %}
+                                    <tr>
+                                        <td>{{ gateway.payment_gateway }}</td>
+                                        <td>{{ gateway.total_vendido_gateway }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="2">No hay datos disponibles.</td>
+                                </tr>
+                                {% endif %}
                                 </tfoot>
                             </table>
+
+                            <h2>Cantidad de Ventas por Gateway de Pago</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Gateway de Pago</th>
+            <th>Total Vendido</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if distribucion_gateway %}
+            {% for gateway in distribucion_gateway %}
+            <tr>
+                <td>{{ gateway.payment_gateway }}</td>
+                <td>{{ gateway.total_vendido_gateway }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="2">No hay datos disponibles.</td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>    
+
 
                      
                     </div>

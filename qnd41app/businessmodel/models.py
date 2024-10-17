@@ -166,7 +166,7 @@ class Venta(models.Model):
 class VentaItem(models.Model):
     venta = models.ForeignKey('Venta', related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey('Productos', related_name='venta_items_products', on_delete=models.CASCADE)
-    category = models.ForeignKey('CategoryProduct', related_name ='category_items_venta', on_delete=models.CASCADE, null=True, blank=True)
+    category = models.ForeignKey('CategoryProduct', related_name ='venta_items_category', on_delete=models.CASCADE, null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
 

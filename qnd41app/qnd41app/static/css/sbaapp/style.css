@@ -326,6 +326,41 @@ blockquote p {
 	color:#292929;
 	font-weight:800;
 }
+
+.monitoring-btn {
+	line-height:40px;
+	margin-right:10px;
+	font-size:19px;
+	top:28px;
+	color:#292929;
+	font-weight:800;
+}
+
+
+.monitoring-btn span {
+	position:absolute;
+	width:100px;
+	text-align:center;
+	bottom:-35px;
+	left:0;
+	margin-left:-29px;
+	font-size:12px;
+	color:#860a0a;
+ 	font-weight:100;
+    font-family: 'Playfair+Display', serif;
+    font-style: italic;
+	opacity:0;
+	visibility:hidden;
+	transition: all .2s ease-in-out;
+}
+.monitoring-btn:hover span {
+	visibility:visible;
+	opacity:1;
+	bottom:-25px;
+	color:red
+}
+
+
 .share-btn span {
 	position:absolute;
 	width:100px;
@@ -536,14 +571,15 @@ blockquote p {
 .popup-content,
 .popup-content-results {
     background-color: #6c0707;
-    margin: 15% auto;
+    margin: 0% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 80%;
     max-width: 514px;
     border-radius: 25px;
-    height: 350px;
+    height: 540px;
 }
+
 
 /* ------Sliders------------------------------------------------------------ */ 
 .bottom-panel {
@@ -4119,7 +4155,7 @@ section {
 	.tab-button {
 		padding: 10px 15px;
 		cursor: pointer;
-		background-color: #161616;
+		background-color: #2b2b2b;
 		border: none;
 		border-top-left-radius: 10px;
 		border-top-right-radius: 10px;
@@ -4185,13 +4221,84 @@ section {
 
 .chart-container {
     width: 100%;
-    max-width: 94%; /* Ajusta el tamaño máximo del contenedor del gráfico */
+    max-width: 100%; /* Ajusta el tamaño máximo del contenedor del gráfico */
     margin: 0 auto; /* Centra el gráfico en la página */
     height: 493px;
 
 }
 
+
+
 #chart {
     width: 100%;
     height: auto; /* Mantiene la proporción del gráfico */
 }
+
+.responsive-img {
+    max-width: 100%;
+    height: auto;
+	width: 100%;
+  }
+
+  .form-control {
+    width: 100%; /* Hace que el campo ocupe todo el ancho */
+    padding: 10px; /* Espaciado interno */
+    margin-top: 5px; /* Espacio entre la etiqueta y el campo */
+    border: 1px solid #ccc; /* Borde ligero */
+    border-radius: 4px; /* Bordes redondeados */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    font-size: 16px; /* Tamaño de fuente */
+}
+
+.date-input {
+    background-color: #f9f9f9; /* Color de fondo para fechas */
+}
+
+.time-input {
+    background-color: #f0f0f0; /* Color de fondo para horas */
+}
+
+.filter-button {
+    margin-top: 20px; /* Espacio superior */
+    padding: 10px 15px; /* Espaciado interno */
+    background-color: #007bff; /* Color de fondo del botón */
+    color: white; /* Color del texto */
+    border: none; /* Sin borde */
+    border-radius: 4px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar el mouse */
+}
+
+.filter-button:hover {
+    background-color: #0056b3; /* Color de fondo al pasar el mouse */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.filter-popup-button {
+    background-color: #535151;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border-color: #535151;
+    border: none;
+}
+
+.filter-popup-button:hover {
+    

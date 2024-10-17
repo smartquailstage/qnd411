@@ -66,7 +66,6 @@
   </div>
 </div>
 
-
 <div id="filterPopup_amountrange" class="popup">
   <div class="popup-content">
     <span class="close" onclick="togglePopup_amountrange()">&times;</span>
@@ -93,6 +92,98 @@
       </div>
   </div>
 </div>
+ <!-- Filtros para reportes   -->
+ <div id="filterPopup_customers_report" class="popup">
+  <div class="popup-content">
+      <span class="close" onclick="togglePopup_customers_report()">&times;</span>
+      <div id="contact-form" class="custom-form" class="fl-wrap">
+
+          <form method="get" action="{% url 'businessmodel:admin_comprobante_historial_pdf' venta_id=venta.id  %}">
+              
+              <div class="form-group">
+                <label for="nombre_cliente">Nombre del Cliente:</label>
+                <input type="text" id="nombre_cliente" name="nombre_cliente" class="form-control" value="{{ request.GET.nombre_cliente }}" placeholder="Nombre del cliente">
+              </div>
+              <hr>                        
+
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Search Incomes</button>
+              </div>
+            </form>
+            
+      </div>
+  </div>
+</div>
+
+<div id="filterPopup_timerange_report" class="popup">
+<div class="popup-content">
+    <span class="close" onclick="togglePopup_timerange_report()">&times;</span>
+    <div id="contact-form" class="custom-form" class="fl-wrap">
+
+        <form method="get" action="{% url 'businessmodel:admin_comprobante_historial_pdf' venta_id=venta.id  %}">
+            
+                  
+            <!-- Filas con dos columnas para fecha y hora -->
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="fecha_inicio">Fecha de Inicio:</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control" value="{{ request.GET.fecha_inicio }}">
+              </div>
+          
+              <div class="form-group col-md-6">
+                <label for="fecha_fin">Fecha de Fin:</label>
+                <input type="date" id="fecha_fin" name="fecha_fin" class="form-control" value="{{ request.GET.fecha_fin }}">
+              </div>
+            </div>
+          
+            <div class="form-row">
+              <div class="form-group col-md-6">
+                <label for="hora_inicio">Hora de Inicio:</label>
+                <input type="time" id="hora_inicio" name="hora_inicio" class="form-control" value="{{ request.GET.hora_inicio }}">
+              </div>
+          
+              <div class="form-group col-md-6">
+                <label for="hora_fin">Hora de Fin:</label>
+                <input type="time" id="hora_fin" name="hora_fin" class="form-control" value="{{ request.GET.hora_fin }}">
+              </div>
+            </div>                      
+
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">Search Incomes</button>
+            </div>
+          </form>
+          
+    </div>
+</div>
+</div>
+
+<div id="filterPopup_amountrange_report" class="popup">
+<div class="popup-content">
+  <span class="close" onclick="togglePopup_amountrange_report()">&times;</span>
+    <div id="contact-form" class="custom-form" class="fl-wrap">
+    
+
+        <form method="get" action="{% url 'businessmodel:admin_comprobante_historial_pdf' venta_id=venta.id  %}">
+            
+          
+          <div class="form-group">
+            <label for="monto_min">Monto Mínimo:</label>
+            <input type="number" id="monto_min" name="monto_min" class="form-control" value="{{ request.GET.monto_min }}" placeholder="Monto mínimo">
+
+            <label for="monto_max">Monto Máximo:</label>
+            <input type="number" id="monto_max" name="monto_max" class="form-control" value="{{ request.GET.monto_max }}" placeholder="Monto máximo">
+          </div>
+        
+          
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary">Search Incomes</button>
+            </div>
+          </form>
+          
+    </div>
+</div>
+</div>
+
 
 <header class="main-header">
     <!-- logo   -->
@@ -101,13 +192,8 @@
     
     <!-- search end  -->
     <a class="share-btn" href="#"><i class="fa-solid fa-cash-register"></i><span>Create a Income</span></a>
-    <a href="{% url 'businessmodel:admin_comprobante_historial_pdf' venta_id=venta.id %}" class="share-btn"><i class="fa-solid fa-eye"></i><span>Live report</span></a>
 
-    
- 
-    
-    
-   
+
 
     <div class="nav-holder main-menu">
         <nav>
@@ -213,17 +299,17 @@
                 <li>
                   <h3>REPORT </h3>
                   <hr>
-                  <a  onclick="togglePopup_customers()"> 
+                  <a  onclick="togglePopup_customers_report()"> 
                    Customers
                   </a> 
               </li> 
                 <li>
-                  <a onclick="togglePopup_timerange()"> 
+                  <a onclick="togglePopup_timerange_report()"> 
                    Time range
                   </a> 
               </li> 
                 <li>
-                  <a onclick="togglePopup_amountrange()"> 
+                  <a onclick="togglePopup_amountrange_report()"> 
                      Amount range
                     </a> 
                 </li>                     
@@ -275,6 +361,42 @@
 
     window.onclick = function(event) {
         const popup = document.getElementById("filterPopup_amountrange");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
+
+    function togglePopup_customers_report() {
+        const popup = document.getElementById("filterPopup_customers_report");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup_customers_report");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
+
+    function togglePopup_timerange_report() {
+        const popup = document.getElementById("filterPopup_timerange_report");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup_timerange_report");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
+
+    function togglePopup_amountrange_report() {
+        const popup = document.getElementById("filterPopup_amountrange_report");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
+
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup_amountrange_report");
         if (event.target === popup) {
             popup.style.display = "none";
         }

@@ -20,18 +20,23 @@
                     <!-- Pestañas -->
                     <div class="tabs">
                         <a class="tab-button active" href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
-                            <h3>Incomes Frequency for Amounts</h3>
+                          
+                            <h3>Incomes frequency for Amounts</h3>
                         </a>
                         <a class="tab-button" href="{% url 'businessmodel:income_histogram_product' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                          
                             <h3>Incomes Frequency for Product</h3>
                         </a>
 
                         <a class="tab-button" href="{% url 'businessmodel:income_histogram_category' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                         
                             <h3>Incomes Frequency for Product Category</h3>
                         </a>
+
+                        <button class="tab-button active" onclick="openTab(event, 'distributionProducts')">
+                           
+                            <h3>Incomes amount frequency results</h3>
+                        </button>
 
                     </div>
 
@@ -54,9 +59,11 @@
                     <div id="distributionProducts" class="tab-content">
                         
                         <table id="result_list" class="info-table">
+                      
                                 <thead>
                                     <tr>
-                                        <th>Parámetros</th>
+                                       
+                                        <th>Amounts Income Stadistics</th>
                                         <th>Analizados</th>
                                         <th>Totales</th>
                                         <th>(%) Analizado</th>
@@ -64,32 +71,35 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>Cantidad de tickets</td>
-                                        <td>{{ cantidad_ventas }}</td>
-                                        <td>{{ cantidad_neta_ventas|floatformat:0 }}</td>
+                                        <td>Mean Income
+                                          
+
+                                        </td>
+                                        <td> $ {{ estadisticas_filtradas.promedio|floatformat:2 }}</td>
+                                        <td> $ {{ estadisticas_totales.promedio|floatformat:2 }}</td>
                                         <td>
-                                            ({{ porcentaje_cantidad_ventas|floatformat:0 }}%) 
+                                            ({{ porcentaje_promedio|floatformat:0 }}%) 
                                             <div style="display: inline-block; width: 100px; margin-left: 10px;">
                                                 <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
-                                                    {% if porcentaje_cantidad_ventas < 30 %}
-                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                    {% elif porcentaje_cantidad_ventas < 60 %}
-                                                        <div style="background-color: orange; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                    {% elif porcentaje_cantidad_ventas < 100 %}
-                                                        <div style="background-color: blue; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                    {% elif porcentaje_cantidad_ventas == 100 %}
-                                                        <div style="background-color: green; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% if porcentaje_promedio  < 30 %}
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio < 60 %}
+                                                        <div style="background-color: orange; width: {{ porcentaje_promedio|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio  < 100 %}
+                                                        <div style="background-color: blue; width: {{ porcentaje_promedio|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                    {% elif porcentaje_promedio == 100 %}
+                                                        <div style="background-color: green; width: {{ porcentaje_promedio|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
                                                     {% else %}
-                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        <div style="background-color: #b80b0b; width: {{ porcentaje_promedio|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
                                                     {% endif %}
                                                 </div>
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Monto total de venta</td>
-                                        <td>$ {{ venta_total|floatformat:2 }}</td>
-                                        <td>$ {{ total_monto_neto|floatformat:2 }}</td>
+                                        <td>Income Standar Desviation</td>
+                                        <td>$ {{ estadisticas_filtradas.std_dev|floatformat:2 }}</td>
+                                        <td>$ {{estadisticas_totales.std_dev|floatformat:2 }}</td>
                                         <td>({{ porcentaje_monto_ventas|floatformat:0 }}%)
                                             <div style="display: inline-block; width: 100px; margin-left: 10px;">
                                                 <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
@@ -109,9 +119,9 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Monto de I.V.A (15%)</td>
-                                        <td>$ {{ quince_por_ciento|floatformat:2 }}</td>
-                                        <td>$ {{ total_monto_iva_neto|floatformat:2 }}</td>
+                                        <td>Median Income value</td>
+                                        <td>$ {{ estadisticas_filtradas.mediana|floatformat:2 }}</td>
+                                        <td>$ {{ estadisticas_totales.mediana|floatformat:2 }}</td>
                                         <td>({{ porcentaje_iva_ventas|floatformat:0 }}%)
                                             <div style="display: inline-block; width: 100px; margin-left: 10px;">
                                                 <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
@@ -131,9 +141,9 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Promedio de ventas</td>
-                                        <td>$ {{ promedio_venta|floatformat:2 }}</td>
-                                        <td>$ {{ promedio_total_venta|floatformat:2 }}</td>
+                                        <td>Maximun Income Value</td>
+                                        <td>$ {{ estadisticas_filtradas.maximo|floatformat:2 }}</td>
+                                        <td>$ {{ estadisticas_totales.maximo|floatformat:2 }}</td>
                                         <td>({{ porcentaje_promedio_venta|floatformat:0 }}%)
                                             <div style="display: inline-block; width: 100px; margin-left: 10px;">
                                                 <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
@@ -153,9 +163,9 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td>Margen Bruto</td>
-                                        <td>$ {{ sub_total_variable_cost|floatformat:2 }}</td>
-                                        <td>$ {{ promedio_total_venta|floatformat:2 }}</td>
+                                        <td>Minimun Income Value </td>
+                                        <td>$ {{ estadisticas_filtradas.minimo|floatformat:2 }}</td>
+                                        <td>$ {{ estadisticas_totales.minimo|floatformat:2 }}</td>
                                         <td>({{ porcentaje_promedio_venta|floatformat:0 }}%)
                                             <div style="display: inline-block; width: 100px; margin-left: 10px;">
                                                 <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
@@ -177,48 +187,71 @@
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td>Crecimiento/Decremento</td>
-                                        {% if numero_maximos > numero_minimos %}
+                                        <td>Income Stability </td>
+                                        
+                                      
                                             <td>
-                                                Aumento: ({{ rapidez|floatformat:0 }}%)
+                                                 ({{ estadisticas_filtradas.stability |floatformat:2 }}%)
                                                 <div style="display: inline-block; width: 100px; margin-left: 10px;">
-                                                    <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
-                                                        {% if rapidez < 30 %}
-                                                            <div style="background-color: #b80b0b; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                        {% elif rapidez < 60 %}
-                                                            <div style="background-color: orange; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                        {% elif rapidez < 100 %}
-                                                            <div style="background-color: blue; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                        {% elif rapidez == 100 %}
-                                                            <div style="background-color: green; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                   
+                                                        {% if estadisticas_filtradas.stability < 30 %}
+                                                        Stable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                         <div style="background-color: #3ced1d; width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        </div>
+                                                        {% elif estadisticas_filtradas.stability < 60 %}
+                                                        Stable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                        <div style="background-color: rgb(42, 118, 172); width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        </div>
+                                                        {% elif estadisticas_filtradas.stability < 100 %}
+                                                        semi-stable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                        <div style="background-color: rgb(255, 191, 0); width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        </div>
+                                                        {% elif estadisticas_filtradas.stability == 100 %}
+                                                        unstable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                       <div style="background-color: rgb(212, 12, 9); width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                       </div>
                                                         {% else %}
-                                                            <div style="background-color: #b80b0b; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        Unstable:    <div style="background-color: #ff0202; width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
                                                         {% endif %}
-                                                    </div>
+                                                    
                                                 </div>
                                             </td>
-                                        {% elif numero_minimos > numero_maximos %}
+                                     
                                             <td>
-                                                Disminución: ({{ rapidez_d|floatformat:0 }}%)
+                                                ({{ estadisticas_totales.stability |floatformat:2 }}%)
                                                 <div style="display: inline-block; width: 100px; margin-left: 10px;">
-                                                    <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
-                                                        {% if rapidez_d < 30 %}
-                                                            <div style="background-color: #b80b0b; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                        {% elif rapidez_d < 60 %}
-                                                            <div style="background-color: orange; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                        {% elif rapidez_d < 100 %}
-                                                            <div style="background-color: blue; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
-                                                        {% elif rapidez_d == 100 %}
-                                                            <div style="background-color: green; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                   
+                                                        {% if estadisticas_totales.stability < 30 %}
+                                                        Stable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                         <div style="background-color: #3ced1d; width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        </div>
+                                                        {% elif estadisticas_totales.stability < 60 %}
+                                                        Stable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                        <div style="background-color: rgb(42, 118, 172); width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        </div>
+                                                        {% elif estadisticas_totales.stability < 100 %}
+                                                        semi-stable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                        <div style="background-color: rgb(255, 191, 0); width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        </div>
+                                                        {% elif estadisticas_totales.stability == 100 %}
+                                                        unstable
+                                                        <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                                       <div style="background-color: rgb(212, 12, 9); width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                       </div>
                                                         {% else %}
-                                                            <div style="background-color: #b80b0b; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                                        Unstable:    <div style="background-color: #ff0202; width: {{ estadisticas_filtradas.stability|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
                                                         {% endif %}
-                                                    </div>
+                                                    
                                                 </div>
                                             </td>
-                                        {% else %}
-                                            <td>No hay cambios significativos</td>
-                                        {% endif %}
+                                     
                                     </tr>
                                     <tr>
                                         <td>Ingresos Operativos</td>
@@ -241,9 +274,35 @@
                                                 </div>
                                             </div>
                                         </td>
+
+                                       
                                     </tr>
+                                 
+                                    
+               
                                 </tfoot>
                             </table>
+
+                            <h2>Cantidad de Ventas por Gateway de Pago</h2>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Gateway de Pago</th>
+                                        {% for gateway in distribucion_gateway_pivot.0.keys %}
+                                            <th>{{ gateway }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Total Vendido</td>
+                                        {% for gateway in distribucion_gateway_pivot.0.values %}
+                                            <td>{{ gateway }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                </tbody>
+                            </table>
+
 
                      
                     </div>

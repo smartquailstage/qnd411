@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{% include 'admin/businessmodel/Sales/tools/histogram-incomes/amount/header_frequency.html' %}
+{% include 'admin/businessmodel/Sales/tools/histogram-incomes/category/header_frequency.html' %}
 
 
 
@@ -19,19 +19,24 @@
 
                     <!-- Pestañas -->
                     <div class="tabs">
-                        <a class="tab-button" href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
-                            <h3>Incomes Frequency for Amounts</h3>
+                        <a class="tab-button  " href="{% url 'businessmodel:income_histogram_amount' venta_id=venta.id %}">
+                       
+                            <h3>Incomes frequency for Amounts</h3>
                         </a>
                         <a class="tab-button" href="{% url 'businessmodel:income_histogram_product' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                          
                             <h3>Incomes Frequency for Product</h3>
                         </a>
 
-                        <a class="tab-button active" href="{% url 'businessmodel:income_histogram_category' venta_id=venta.id %}">
-                            <i class="fa-solid fa-chart-simple"></i>
+                        <a class="tab-button active " href="{% url 'businessmodel:income_histogram_category' venta_id=venta.id %}">
+                         
                             <h3>Incomes Frequency for Product Category</h3>
                         </a>
+
+                        <button class="tab-button active" onclick="openTab(event, 'distributionProducts')">
+                       
+                            <h3>Incomes Frequency Category results</h3>
+                        </button>
 
                     </div>
                     <!-- Contenido de las pestañas -->

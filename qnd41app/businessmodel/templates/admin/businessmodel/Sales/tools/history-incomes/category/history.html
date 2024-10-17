@@ -4,7 +4,7 @@
 
 {% block content %}
 
-{% include 'admin/businessmodel/Sales/tools/history-incomes/amount/header_history.html' %}
+{% include 'admin/businessmodel/Sales/tools/history-incomes/category/header_history.html' %}
 
 <div id="wrapper">
     <div class="content full-height">
@@ -16,75 +16,30 @@
             
 
                     <div class="tabs">
-                        <button class="tab-button active" href="{% url 'businessmodel:history_incomes_amount' venta_id=venta.id %}">
+                        <a class="tab-button" href="{% url 'businessmodel:history_incomes_amount' venta_id=venta.id %}">
                             <i class="fa-regular fa-rectangle-list"></i>
                             <h3>Income Customers History</h3>
-                        </button>
+                        </a>
                         <a class="tab-button" href="{% url 'businessmodel:history_incomes_product' venta_id=venta.id %}">
                             <i class="fa-solid fa-list-check"></i>
                             <h3>Income Product History</h3>
+                            
                         </a>
-
-                        <a class="tab-button" href="{% url 'businessmodel:history_incomes_category' venta_id=venta.id %}">
+                        <a class="tab-button active" href="{% url 'businessmodel:history_incomes_category' venta_id=venta.id %}">
                             <i class="fa-solid fa-list-check"></i>
                             <h3>Income Category History</h3>
                         </a>
-
                     </div>
 
-                    <!-- Contenido de las pestañas -->
-                    <div id="historyCustomers" class="tab-content active">
-                        <table id="result_list" class="info-table">
-                            <thead>
-                                <tr>
-                                    <th>
-                                        ID
-                                    </th>
-                                    <th>Fecha</th>
-                                    <th>Hora</th>
-                                    <th>Nombre del Cliente</th>
-                                    <th>Sub Total</th>
-                                    <th>I.V.A (valor)</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for venta in lista_ventas %}
-                                <tr>
-                                    <td data-label="ID">{{ venta.id }}</td>
-                                    <td data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
-                                    <td data-label="Hora">{{ venta.hora|time:"H:i" }}</td>
-                                    <td data-label="Nombre del Cliente">{{ venta.first_name }} {{ venta.last_name }}</td>
-                                    <td data-label="Sub Total">${{ venta.sub_total|floatformat:2 }}</td>
-                                    <td data-label="I.V.A (valor)">${{ venta.valor_iva|floatformat:2 }}</td>
-                                    <td data-label="Total">${{ venta.total_a_pagar|floatformat:2 }}</td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="7">No hay ventas registradas.</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <th colspan="3">{{ cantidad_ventas }} ventas</th>
-                                    <th colspan="1" style="text-align: right;">Total General:</th>
-                                    <th>${{ suma_sub_totales|floatformat:2 }}</th>
-                                    <th>${{ suma_valor_iva|floatformat:2 }}</th>
-                                    <th>${{ suma_totales|floatformat:2 }}</th>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
 
-                    <div id="historyProduct" class="tab-content">
+                    <div id="historyProduct" class="tab-content active">
                         <table id="result_list" class="info-table">
                             <thead>
                                 <tr>
                                     <th>ID</th>
                                     <th>Fecha</th>
                                     <th>Hora</th>
-                                    <th>Nombre del Producto</th>
+                                    <th>Categoría de Producto</th>
                                     <th>Cantidad</th>
                                     <th>Sub Total</th>
                                     <th>I.V.A (valor)</th>
@@ -98,7 +53,8 @@
                                         <td data-label="ID">{{ venta.id }}</td>
                                         <td data-label="Fecha">{{ venta.fecha|date:"d/m/Y" }}</td>
                                         <td data-label="Hora">{{ venta.hora|time:"H:i" }}</td>
-                                        <td data-label="Nombre del Producto">{{ item.product.nombre }}</td>
+                
+                                        <td data-label="Categoria de Producto">{{ item.product.category }}</td>
                                         <td data-label="Cantidad">{{ item.quantity }}</td>
                                         <td data-label="Sub Total">${{ item.get_cost|floatformat:2 }}</td>
                                         <td data-label="I.V.A (valor)">${{ venta.valor_iva|floatformat:2 }}</td>
@@ -206,7 +162,17 @@
 </div>
 
 <script>
+    function togglePopup() {
+        const popup = document.getElementById("filterPopup");
+        popup.style.display = popup.style.display === "block" ? "none" : "block";
+    }
 
+    window.onclick = function(event) {
+        const popup = document.getElementById("filterPopup");
+        if (event.target === popup) {
+            popup.style.display = "none";
+        }
+    }
 
     function openTab(event, tabName) {
         var i, tabcontent, tabbuttons;
@@ -221,8 +187,6 @@
         document.getElementById(tabName).classList.add("active");
         event.currentTarget.classList.add("active");
     }
-
-    
 </script>
 
 {% endblock %}

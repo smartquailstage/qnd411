@@ -1,0 +1,464 @@
+{% load i18n static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <link href="{% static 'admin/businessmodel/css/comprobante_metricas_venta.css' %}" media="print" rel="stylesheet">
+    <link href="{% static 'fontawesome/css/fontawesome.css' %}" rel="stylesheet" />
+    <link href="{% static 'fontawesome/css/brands.css' %}" rel="stylesheet" />
+    <link href="{% static 'fontawesome/css/css/solid.css' %}" rel="stylesheet" />
+    <title>Factura</title>
+    <meta name="description" content="Factura de venta {{ venta.id }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        aside {
+            margin-bottom: 5px;
+        }
+        address {
+            font-style: normal;
+            line-height: 1;
+            margin-top: 5px;
+        }
+        #informations {
+            margin: 0;  /* Eliminar márgenes para que esté más arriba */
+            font-size: 9px;
+            margin-top: -5px;  /* Mantener el margen superior si es necesario */
+        }
+        dt, dd {
+            display: inline;
+            margin: 0;
+        }
+        dt {
+            color: rgb(211, 26, 9);
+        }
+        dt::before {
+            content: '';
+            display: block;
+        }
+        dt::after {
+            content: '';
+        }
+
+        #informations dt {
+            font-weight: bold;
+            color: rgb(66, 64, 64);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 7px;
+            text-align: left;
+            page-break-inside: avoid;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            page-break-before: always;
+        }
+        .grafico {
+            width: 400px; /* Ajusta el ancho según sea necesario */
+            height: auto; /* Mantiene la proporción */
+            align-items: center;
+            margin-right: 20px; /* Espaciado entre gráfico y tabla */
+          
+        }
+        .flex-container {
+            display: flex;
+            align-items: stretch; /* Asegura que el gráfico y la tabla estén alineados en altura */
+            margin-bottom: 20px;
+        }
+        .summary-table {
+            flex: 1; /* Para que la tabla ocupe el espacio restante */
+        }
+
+        .analitico {
+            display: flex;
+            justify-content: left; /* Centra el contenido horizontalmente */
+            align-items: stretch; /* Asegura que ambos subbloques estén alineados en altura */
+            margin: 20px 0; /* Espaciado vertical */
+            margin-bottom:-2px;
+        }
+
+        .flex-container {
+            display: flex;
+            align-items: stretch; /* Asegura que la imagen y la tabla tengan la misma altura */
+            width: 100%; /* Ocupa todo el ancho disponible */
+        }
+
+        .grafico-container {
+            flex: 0 0 400px; /* La imagen tiene un ancho fijo */
+            margin-right: 8px; /* Espaciado entre gráfico y tabla */
+            height: auto;
+        }
+
+        .table-container {
+            flex: 1; /* La tabla ocupa el espacio restante */
+            overflow-x: auto; /* Permite desplazamiento horizontal si la tabla es demasiado ancha */
+        }
+
+        header {
+            display: flex;
+            justify-content: left; /* Centra el logotipo horizontalmente */
+            align-items: left; /* Centra el logotipo verticalmente */
+            margin-bottom: 5px; /* Espacio inferior para separar del contenido */
+            margin-top: 3px;
+        }
+
+        .logo {
+            max-width: 200px; /* Ajusta el tamaño máximo del logotipo */
+            height: auto; /* Mantiene la proporción del logotipo */
+        }
+
+        .pagination {
+            margin-top: 10px; /* Espacio entre el logotipo y la paginación */
+            font-size: 12pt; /* Ajusta el tamaño de la fuente para la paginación */
+            color: #14213d; /* Color del texto de la paginación */
+        }
+
+        .footer-left {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            color: #1ee494;
+            font-size: 8pt; /* Ajusta el tamaño del texto para que no ocupe mucho espacio */
+            background: url('../static/img/estampa.png') no-repeat left center; /* Imagen de fondo */
+            background-size: contain; /* Ajusta el tamaño de la imagen */
+            padding: 10px; /* Espaciado para evitar que el texto se superponga */
+        }
+        
+        .footer-right {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            color: #a9a;
+            font-size: 8pt; /* Ajusta el tamaño del texto para que no ocupe mucho espacio */
+            padding: 10px; /* Espaciado para evitar que el texto se superponga */
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{% static '/img/logo_smartquailGray.png' %}" alt="Logotipo" class="logo" />
+    </header>
+
+    <dl id="informations">
+        <dt>Business Analytics:</dt>
+        <dd>SmartQuail.S.A.S</dd>
+        <dt>Created by:</dt>
+        <dd>Mauricio Silva</dd>
+        <dt>Chief Officer Technologies</dt>
+        <dt>Tipo de reporte: Distribución de ventas en el tiempo.</dt>
+
+    </dl>
+
+    <div class="analitico">
+        <div class="flex-container">
+            <div class="grafico-container">
+                <img src="data:image/png;base64,{{ grafico_montos }}" class="grafico" alt="Gráfico de productos" />
+            </div>
+            <div class="table-container">
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid #ddd; padding: 5px; background-color: #f2f2f2; font-size: 5pt;"> Parámetros Locales de venta </th>
+                            <th style="border: 1px solid #ddd; padding: 5px; background-color: #f2f2f2;">Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 5px;">Rango de Tiempo analizado:</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">{{ total_horas|floatformat:2 }} Hs - {{ total_dias|floatformat:2 }}Días - {{ total_meses|floatformat:2 }}Meses - {{ total_años|floatformat:2 }} Años.</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 5px;">ID de Venta:</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">{{ venta.id }}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 10px;">Fecha y hora de compra:</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">{{ venta.fecha|date:"D/M/Y" }} {{ venta.hora }}</td>
+                        </tr>
+                        <tr>
+                            <td style="border: 1px solid #ddd; padding: 10px;">Monto total de venta realizada:</td>
+                            <td style="border: 1px solid #ddd; padding: 10px;">$ {{ venta.monto }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="result">
+        <table>
+            <thead>
+                <tr>
+                    <th>Parámetros</th>
+                    <th>Analizados</th>
+                    <th>Totales</th>
+                    <th>(%) Analizado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Cantidad de tickets</td>
+                    <td>{{ cantidad_ventas }}</td>
+                    <td>{{ cantidad_neta_ventas|floatformat:0 }}</td>
+                    <td>
+                        ({{ porcentaje_cantidad_ventas|floatformat:0 }}%) 
+                        <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                            <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                {% if porcentaje_cantidad_ventas < 30 %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_cantidad_ventas < 60 %}
+                                    <div style="background-color: orange; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_cantidad_ventas < 100 %}
+                                    <div style="background-color: blue; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_cantidad_ventas == 100 %}
+                                    <div style="background-color: green; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% else %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_cantidad_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Monto total de venta</td>
+                    <td>$ {{ venta_total|floatformat:2 }}</td>
+                    <td>$ {{ total_monto_neto|floatformat:2 }}</td>
+                    <td>({{ porcentaje_monto_ventas|floatformat:0 }}%)
+                        <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                            <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                {% if porcentaje_monto_ventas < 30 %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_monto_ventas < 60 %}
+                                    <div style="background-color: orange; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_monto_ventas < 100 %}
+                                    <div style="background-color: blue; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_monto_ventas == 100 %}
+                                    <div style="background-color: green; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% else %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_monto_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Monto de I.V.A (15%)</td>
+                    <td>$ {{ quince_por_ciento|floatformat:2 }}</td>
+                    <td>$ {{ total_monto_iva_neto|floatformat:2 }}</td>
+                    <td>({{ porcentaje_iva_ventas|floatformat:0 }}%)
+                        <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                            <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                {% if porcentaje_iva_ventas < 30 %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_iva_ventas < 60 %}
+                                    <div style="background-color: orange; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_iva_ventas < 100 %}
+                                    <div style="background-color: blue; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_iva_ventas == 100 %}
+                                    <div style="background-color: green; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% else %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_iva_ventas|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Promedio de ventas</td>
+                    <td>$ {{ promedio_venta|floatformat:2 }}</td>
+                    <td>$ {{ promedio_total_venta|floatformat:2 }}</td>
+                    <td>({{ porcentaje_promedio_venta|floatformat:0 }}%)
+                        <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                            <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                {% if porcentaje_promedio_venta < 30 %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_venta < 60 %}
+                                    <div style="background-color: orange; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_venta < 100 %}
+                                    <div style="background-color: blue; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_venta == 100 %}
+                                    <div style="background-color: green; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% else %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Margen Bruto</td>
+                    <td>$ {{ sub_total_variable_cost|floatformat:2 }}</td>
+                    <td>$ {{ promedio_total_venta|floatformat:2 }}</td>
+                    <td>({{ porcentaje_promedio_venta|floatformat:0 }}%)
+                        <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                            <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                {% if porcentaje_promedio_venta < 30 %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_venta < 60 %}
+                                    <div style="background-color: orange; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_venta < 100 %}
+                                    <div style="background-color: blue; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_venta == 100 %}
+                                    <div style="background-color: green; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% else %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_venta|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>Crecimiento/Decremento</td>
+                    {% if numero_maximos > numero_minimos %}
+                        <td>
+                            Aumento: ({{ rapidez|floatformat:0 }}%)
+                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                    {% if rapidez < 30 %}
+                                        <div style="background-color: #b80b0b; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% elif rapidez < 60 %}
+                                        <div style="background-color: orange; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% elif rapidez < 100 %}
+                                        <div style="background-color: blue; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% elif rapidez == 100 %}
+                                        <div style="background-color: green; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% else %}
+                                        <div style="background-color: #b80b0b; width: {{ rapidez|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    {% elif numero_minimos > numero_maximos %}
+                        <td>
+                            Disminución: ({{ rapidez_d|floatformat:0 }}%)
+                            <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                                <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                    {% if rapidez_d < 30 %}
+                                        <div style="background-color: #b80b0b; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% elif rapidez_d < 60 %}
+                                        <div style="background-color: orange; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% elif rapidez_d < 100 %}
+                                        <div style="background-color: blue; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% elif rapidez_d == 100 %}
+                                        <div style="background-color: green; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% else %}
+                                        <div style="background-color: #b80b0b; width: {{ rapidez_d|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    {% else %}
+                        <td>No hay cambios significativos</td>
+                    {% endif %}
+                </tr>
+                <tr>
+                    <td>Ingresos Operativos</td>
+                    <td>${{ total_monto|floatformat:2 }}</td>
+                    <td>$ {{ total_monto_neto|floatformat:2 }}</td>
+                    <td>({{ porcentaje_promedio_ingresos|floatformat:2 }}%)
+                        <div style="display: inline-block; width: 100px; margin-left: 10px;">
+                            <div style="background-color: #e0e0e0; border-radius: 5px; width: 100%; height: 10px;">
+                                {% if porcentaje_promedio_ingresos < 30 %}
+                                    <div style="background-color: #b80b0b; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_ingresos < 60 %}
+                                    <div style="background-color: orange; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_ingresos < 100 %}
+                                    <div style="background-color: blue; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% elif porcentaje_promedio_ingresos == 100 %}
+                                    <div style="background-color: rgb(70, 220, 70); width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% else %}
+                                    <div style="background-color: #9de130; width: {{ porcentaje_promedio_ingresos|floatformat:0 }}%; height: 100%; border-radius: 5px;"></div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        </div>
+        
+
+        <table id="total">
+            <thead>
+                <tr>
+                    <th>Resumen & Análisis distribución de ventas de SmartQuail.S.A.S</th>
+                    <th styles="font-size:5pt; font-style:bold;">Validación, certificación & términos de privacidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <p>
+                            El presente análisis financiero se enfoca en los resultados operativos de una cafetería, un negocio que depende de factores como la ubicación, la calidad del producto, la gestión del costo y la experiencia del cliente. A continuación, se examinarán los principales parámetros de ingresos operativos, así como sus implicaciones en la salud financiera del negocio.
+                        </p>
+                        <p styles="text-align:justify;">
+                            El análisis muestra que la cafetería tiene un desempeño sólido, con un margen de beneficio neto del 35%, lo cual es un indicador positivo de rentabilidad. Sin embargo, se recomienda:
+                            <br>
+                            Diversificación de Productos: Introducir nuevas categorías de productos para aumentar las ventas.
+                            <br>
+                            Optimización de Costos: Revaluar los costos de materia prima y explorar opciones de proveedores más económicos.
+                            <br>
+                            Promociones y Marketing: Implementar estrategias de marketing para atraer nuevos clientes y fidelizar a los existentes.
+                            <br>
+                            Con una gestión adecuada y una atención constante a los costos y los ingresos, la cafetería tiene el potencial de expandir sus operaciones y aumentar su rentabilidad en el futuro.
+                        </p>
+                    </td>
+                    <td>
+                        <img styles="align-items:center;" src="data:image/png;base64,{{ qr_img_str }}" class="qr" alt="qr_code" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="footer-left">
+        <img src="{% static 'img/SmartBusinessAnalytcis.png' %}" alt="Logo" style="max-width: 100px; height: auto;" />
+    </div>
+    <div class="footer-right">
+        Support: support@sba.smartquail.io | + 593-099-6521-262 | SmartBusinessAnalytics © 2024
+    </div>
+
+    <script>
+        window.onload = function() {
+            var resultDiv = document.getElementById("result");
+            var total = document.getElementById("total");
+            var totalHeight = total.offsetHeight;
+            var resultHeight = resultDiv.offsetHeight;
+            var pageHeight = window.innerHeight - 100;
+
+            if (resultHeight + totalHeight > pageHeight) {
+                total.style.pageBreakBefore = "always";
+            }
+        };
+    </script>
+</body>
+</html>

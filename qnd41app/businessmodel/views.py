@@ -25,7 +25,7 @@ from matplotlib.widgets import Cursor
 from .forms import FiltroVentasForm
 from scipy.interpolate import make_interp_spline
 from django.db.models import Sum
-
+from scipy.stats import linregress
 
 
 
@@ -170,8 +170,8 @@ def history_incomes_amount(request, venta_id):
     hora_fin = request.GET.get('hora_fin')
     nombre_cliente = request.GET.get('nombre_cliente')
     nombre_producto = request.GET.get('nombre_producto')  # Filtro por nombre de producto
-    monto_min = request.GET.get('monto_min', 0)
-    monto_max = request.GET.get('monto_max', 1000000000)
+    monto_min = float(request.GET.get('monto_min', 0))
+    monto_max = float(request.GET.get('monto_max', 1000000000))
 
     # Filtrar lista_ventas
     lista_ventas = Venta.objects.all()  # Obtener todas las ventas inicialmente
@@ -195,15 +195,15 @@ def history_incomes_amount(request, venta_id):
     if inicio and fin:
         lista_ventas = lista_ventas.filter(fecha__range=(inicio, fin))  # Filtrar por rango de fechas y horas
 
-    # Filtrar por nombre de cliente (asumimos que el campo `first_name` está en `Venta`)
+    # Filtrar por nombre de cliente
     if nombre_cliente:
-        lista_ventas = lista_ventas.filter(first_name__icontains=nombre_cliente)  # Filtrar por nombre de cliente
+        lista_ventas = lista_ventas.filter(first_name__icontains=nombre_cliente)
 
     # Filtrar por nombre de producto
     if nombre_producto:
-        lista_ventas = lista_ventas.filter(items__product__nombre__icontains=nombre_producto)  # Filtrar por nombre de producto
+        lista_ventas = lista_ventas.filter(items__product__nombre__icontains=nombre_producto)
 
-    # Filtrar por rango de monto (usando el total a pagar de la venta)
+    # Filtrar por rango de monto
     if monto_min and monto_max:
         lista_ventas = lista_ventas.filter(monto__gte=monto_min, monto__lte=monto_max)
     elif monto_min:
@@ -235,6 +235,15 @@ def history_incomes_amount(request, venta_id):
 
     cantidad_ventas = len(lista_ventas)
 
+    # Manejo del ordenamiento
+    sort = request.GET.get('sort', 'id')  # Por defecto ordenar por ID
+    order = request.GET.get('order', 'asc')  # Por defecto orden ascendente
+
+    if order == 'desc':
+        lista_ventas = lista_ventas.order_by(f'-{sort}')
+    else:
+        lista_ventas = lista_ventas.order_by(sort)
+
     # Pasar las ventas y la suma al contexto de la plantilla
     return render(request, 'admin/businessmodel/Sales/tools/history-incomes/amount/history.html', {
         'venta': venta,
@@ -247,30 +256,33 @@ def history_incomes_amount(request, venta_id):
         'total_horas': total_horas,
     })
 
+
 @staff_member_required
 def history_incomes_product(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
-
-    # Obtener fechas, horas, nombre de cliente y monto desde la solicitud
+    
+    # Obtener fechas, horas y montos desde la solicitud
     fecha_inicio = request.GET.get('fecha_inicio')
     hora_inicio = request.GET.get('hora_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     hora_fin = request.GET.get('hora_fin')
-    nombre_producto = request.GET.get('nombre_producto')  # Filtro por nombre de producto
-    monto_min = request.GET.get('monto_min', 0)
-    monto_max = request.GET.get('monto_max', 1000000000)
+    nombre_producto = request.GET.get('nombre_producto')
+    monto_minimo = request.GET.get('monto_minimo')  # Nuevo filtro
+    monto_maximo = request.GET.get('monto_maximo')  # Nuevo filtro
 
     # Filtrar lista_ventas
     lista_ventas = Venta.objects.all()  # Obtener todas las ventas inicialmente
 
-    # Filtrar por rango de fechas y horas
-    inicio, fin = None, None
-
+    # Filtrar las ventas según el rango de fechas y horas
     if fecha_inicio and hora_inicio:
         inicio = datetime.strptime(f"{fecha_inicio} {hora_inicio}", "%Y-%m-%d %H:%M")
+    else:
+        inicio = None
 
     if fecha_fin and hora_fin:
         fin = datetime.strptime(f"{fecha_fin} {hora_fin}", "%Y-%m-%d %H:%M")
+    else:
+        fin = None
 
     if fecha_inicio and fecha_fin:
         inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
@@ -278,20 +290,17 @@ def history_incomes_product(request, venta_id):
         lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
 
     if inicio and fin:
-        lista_ventas = lista_ventas.filter(fecha__range=(inicio, fin))  # Filtrar por rango de fechas y horas
-
+        lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
 
     # Filtrar por nombre de producto
     if nombre_producto:
-        lista_ventas = lista_ventas.filter(items__product__nombre__icontains=nombre_producto)  # Asegúrate de que 'items' y 'product' son las relaciones correctas
+        lista_ventas = lista_ventas.filter(items__product__nombre__icontains=nombre_producto)
 
-    # Filtrar por rango de monto
-    if monto_min and monto_max:
-        lista_ventas = lista_ventas.filter(monto__gte=monto_min, monto__lte=monto_max)
-    elif monto_min:
-        lista_ventas = lista_ventas.filter(monto__gte=monto_min)
-    elif monto_max:
-        lista_ventas = lista_ventas.filter(monto__lte=monto_max)
+    # Filtrar por monto mínimo y máximo
+    if monto_minimo:
+        lista_ventas = lista_ventas.filter(total_a_pagar__gte=float(monto_minimo))  # Monto mínimo
+    if monto_maximo:
+        lista_ventas = lista_ventas.filter(total_a_pagar__lte=float(monto_maximo))  # Monto máximo
 
     # Calcular las diferencias en días y horas entre las ventas
     diferencias = []
@@ -329,21 +338,23 @@ def history_incomes_product(request, venta_id):
         'total_horas': total_horas,
     })
 
-
 @staff_member_required
-def admin_comprobante_historial_pdf(request, venta_id):
+def history_incomes_category(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
-
-    # Obtener parámetros para filtrar
+    
+    # Obtener fechas, horas y montos desde la solicitud
     fecha_inicio = request.GET.get('fecha_inicio')
     hora_inicio = request.GET.get('hora_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     hora_fin = request.GET.get('hora_fin')
-    nombre_cliente = request.GET.get('nombre_cliente')
+    nombre_categoria = request.GET.get('nombre_categoria')
+    monto_minimo = request.GET.get('monto_minimo')  # Nuevo filtro
+    monto_maximo = request.GET.get('monto_maximo')  # Nuevo filtro
 
-    # Filtrar lista_ventas usando la misma lógica que en historial_ventas
-    lista_ventas = Venta.objects.all()
+    # Filtrar lista_ventas
+    lista_ventas = Venta.objects.all()  # Obtener todas las ventas inicialmente
 
+    # Filtrar las ventas según el rango de fechas y horas
     if fecha_inicio and hora_inicio:
         inicio = datetime.strptime(f"{fecha_inicio} {hora_inicio}", "%Y-%m-%d %H:%M")
     else:
@@ -356,14 +367,102 @@ def admin_comprobante_historial_pdf(request, venta_id):
 
     if fecha_inicio and fecha_fin:
         inicio = datetime.strptime(fecha_inicio, "%Y-%m-%d")
-        fin = datetime.strptime(fecha_fin, "%Y-%m-%d") + timedelta(days=1)
+        fin = datetime.strptime(fecha_fin, "%Y-%m-%d") + timedelta(days=1)  # Incluir el último día
         lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
 
     if inicio and fin:
         lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
 
+    # Filtrar por nombre de producto
+    if nombre_categoria:
+        lista_ventas = lista_ventas.filter(items__category__category_name__icontains=nombre_categoria)
+
+    # Filtrar por monto mínimo y máximo
+    if monto_minimo:
+        lista_ventas = lista_ventas.filter(total_a_pagar__gte=float(monto_minimo))  # Monto mínimo
+    if monto_maximo:
+        lista_ventas = lista_ventas.filter(total_a_pagar__lte=float(monto_maximo))  # Monto máximo
+
+    # Calcular las diferencias en días y horas entre las ventas
+    diferencias = []
+    for i in range(1, len(lista_ventas)):
+        fecha1 = lista_ventas[i-1].fecha
+        fecha2 = lista_ventas[i].fecha
+        diferencia = fecha2 - fecha1
+        diferencias.append(diferencia)
+
+    # Sumar todas las diferencias
+    total_diferencia = sum(diferencias, timedelta())
+    total_dias = total_diferencia.days
+    total_horas = total_diferencia.total_seconds() // 3600
+
+    # Calcular totales
+    sub_totales = [v.sub_total() for v in lista_ventas]
+    valores_iva = [v.valor_iva() for v in lista_ventas]
+    totales = [v.total_a_pagar() for v in lista_ventas]
+
+    suma_sub_totales = np.sum(sub_totales)
+    suma_valor_iva = np.sum(valores_iva)
+    suma_totales = np.sum(totales)
+
+    cantidad_ventas = len(lista_ventas)
+
+    # Pasar las ventas y la suma al contexto de la plantilla
+    return render(request, 'admin/businessmodel/Sales/tools/history-incomes/category/history.html', {
+        'venta': venta,
+        'lista_ventas': lista_ventas,
+        'suma_totales': suma_totales,
+        'suma_sub_totales': suma_sub_totales,
+        'suma_valor_iva': suma_valor_iva,
+        'cantidad_ventas': cantidad_ventas,
+        'total_dias': total_dias,
+        'total_horas': total_horas,
+    })
+
+
+
+@staff_member_required
+def admin_comprobante_historial_pdf(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Obtener parámetros para filtrar
+    fecha_inicio = request.GET.get('fecha_inicio')
+    hora_inicio = request.GET.get('hora_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    hora_fin = request.GET.get('hora_fin')
+    nombre_cliente = request.GET.get('nombre_cliente')
+    monto_min = request.GET.get('monto_min', 0)
+    monto_max = request.GET.get('monto_max', 1000000000)
+
+    # Filtrar lista_ventas usando la misma lógica que en historial_ventas
+    lista_ventas = Venta.objects.all()
+
+    # Procesar fechas
+    if fecha_inicio and hora_inicio:
+        inicio = datetime.strptime(f"{fecha_inicio} {hora_inicio}", "%Y-%m-%d %H:%M")
+    else:
+        inicio = None
+
+    if fecha_fin and hora_fin:
+        fin = datetime.strptime(f"{fecha_fin} {hora_fin}", "%Y-%m-%d %H:%M")
+    else:
+        fin = None
+
+    # Filtrar por rango de fechas
+    if inicio and fin:
+        lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
+
+    # Filtrar por nombre del cliente
     if nombre_cliente:
         lista_ventas = lista_ventas.filter(first_name__icontains=nombre_cliente)
+
+    # Filtrar por rango de monto
+    if monto_min and monto_max:
+        lista_ventas = lista_ventas.filter(monto__gte=monto_min, monto__lte=monto_max)
+    elif monto_min:
+        lista_ventas = lista_ventas.filter(monto__gte=monto_min)
+    elif monto_max:
+        lista_ventas = lista_ventas.filter(monto__lte=monto_max)
 
     # Calcular totales para el PDF
     sub_totales = [v.sub_total() for v in lista_ventas]
@@ -396,6 +495,161 @@ def admin_comprobante_historial_pdf(request, venta_id):
         presentational_hints=True)
 
     return response
+
+
+@staff_member_required
+def admin_comprobante_historial_product_pdf(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Obtener parámetros para filtrar
+    fecha_inicio = request.GET.get('fecha_inicio')
+    hora_inicio = request.GET.get('hora_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    hora_fin = request.GET.get('hora_fin')
+    nombre_producto = request.GET.get('nombre_producto')
+    monto_min = request.GET.get('monto_min', 0)
+    monto_max = request.GET.get('monto_max', 1000000000)
+
+    # Filtrar lista_ventas usando la misma lógica que en historial_ventas
+    lista_ventas = Venta.objects.all()
+
+    # Procesar fechas
+    if fecha_inicio and hora_inicio:
+        inicio = datetime.strptime(f"{fecha_inicio} {hora_inicio}", "%Y-%m-%d %H:%M")
+    else:
+        inicio = None
+
+    if fecha_fin and hora_fin:
+        fin = datetime.strptime(f"{fecha_fin} {hora_fin}", "%Y-%m-%d %H:%M")
+    else:
+        fin = None
+
+    # Filtrar por rango de fechas
+    if inicio and fin:
+        lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
+
+    # # Filtrar por nombre de producto
+    if nombre_producto:
+        lista_ventas = lista_ventas.filter(items__product__nombre__icontains=nombre_producto)
+
+    # Filtrar por rango de monto
+    if monto_min and monto_max:
+        lista_ventas = lista_ventas.filter(monto__gte=monto_min, monto__lte=monto_max)
+    elif monto_min:
+        lista_ventas = lista_ventas.filter(monto__gte=monto_min)
+    elif monto_max:
+        lista_ventas = lista_ventas.filter(monto__lte=monto_max)
+
+    # Calcular totales para el PDF
+    sub_totales = [v.sub_total() for v in lista_ventas]
+    valores_iva = [v.valor_iva() for v in lista_ventas]
+    totales = [v.total_a_pagar() for v in lista_ventas]
+
+    suma_sub_totales = np.sum(sub_totales)
+    suma_valor_iva = np.sum(valores_iva)
+    suma_totales = np.sum(totales)
+
+    cantidad_ventas = len(lista_ventas)
+
+    # Renderizar HTML para el PDF
+    html = render_to_string('admin/businessmodel/ventas/reportes/historial_comprobante_productos.html',
+                            {
+                                'venta': venta,
+                                'lista_ventas': lista_ventas,
+                                'valores_iva': valores_iva,
+                                'suma_totales': suma_totales,
+                                'suma_sub_totales': suma_sub_totales,
+                                'suma_valor_iva': suma_valor_iva,
+                                'cantidad_ventas': cantidad_ventas,
+                            })
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename=historial_comprobante_{}.pdf'.format(venta.id)
+
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response,
+        stylesheets=[weasyprint.CSS('businessmodel/static/css/comprobante_metricas_venta.css')],
+        presentational_hints=True)
+
+    return response
+
+
+@staff_member_required
+def admin_comprobante_historial_category_pdf(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Obtener parámetros para filtrar
+    fecha_inicio = request.GET.get('fecha_inicio')
+    hora_inicio = request.GET.get('hora_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    hora_fin = request.GET.get('hora_fin')
+    nombre_categoria = request.GET.get('nombre_categoria')
+    monto_min = request.GET.get('monto_min', 0)
+    monto_max = request.GET.get('monto_max', 1000000000)
+
+    # Filtrar lista_ventas usando la misma lógica que en historial_ventas
+    lista_ventas = Venta.objects.all()
+
+    # Procesar fechas
+    if fecha_inicio and hora_inicio:
+        inicio = datetime.strptime(f"{fecha_inicio} {hora_inicio}", "%Y-%m-%d %H:%M")
+    else:
+        inicio = None
+
+    if fecha_fin and hora_fin:
+        fin = datetime.strptime(f"{fecha_fin} {hora_fin}", "%Y-%m-%d %H:%M")
+    else:
+        fin = None
+
+    # Filtrar por rango de fechas
+    if inicio and fin:
+        lista_ventas = lista_ventas.filter(fecha__range=(inicio.date(), fin.date()))
+
+    # Filtrar por nombre de producto
+    if nombre_categoria:
+        lista_ventas = lista_ventas.filter(items__category__category_name__icontains=nombre_categoria)
+
+    # Filtrar por rango de monto
+    if monto_min and monto_max:
+        lista_ventas = lista_ventas.filter(monto__gte=monto_min, monto__lte=monto_max)
+    elif monto_min:
+        lista_ventas = lista_ventas.filter(monto__gte=monto_min)
+    elif monto_max:
+        lista_ventas = lista_ventas.filter(monto__lte=monto_max)
+
+    # Calcular totales para el PDF
+    sub_totales = [v.sub_total() for v in lista_ventas]
+    valores_iva = [v.valor_iva() for v in lista_ventas]
+    totales = [v.total_a_pagar() for v in lista_ventas]
+
+    suma_sub_totales = np.sum(sub_totales)
+    suma_valor_iva = np.sum(valores_iva)
+    suma_totales = np.sum(totales)
+
+    cantidad_ventas = len(lista_ventas)
+
+    # Renderizar HTML para el PDF
+    html = render_to_string('admin/businessmodel/ventas/reportes/historial_comprobante_categorias.html',
+                            {
+                                'venta': venta,
+                                'lista_ventas': lista_ventas,
+                                'valores_iva': valores_iva,
+                                'suma_totales': suma_totales,
+                                'suma_sub_totales': suma_sub_totales,
+                                'suma_valor_iva': suma_valor_iva,
+                                'cantidad_ventas': cantidad_ventas,
+                            })
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename=historial_comprobante_{}.pdf'.format(venta.id)
+
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response,
+        stylesheets=[weasyprint.CSS('businessmodel/static/css/comprobante_metricas_venta.css')],
+        presentational_hints=True)
+
+    return response
+
+
+
 
 @staff_member_required
 def historial_ventas_productos(request, venta_id):
@@ -496,6 +750,8 @@ def income_scatter(request, venta_id):
     hora_inicio = request.GET.get('hora_inicio')
     fecha_fin = request.GET.get('fecha_fin')
     hora_fin = request.GET.get('hora_fin')
+    monto_min = request.GET.get('monto_min', 0)
+    monto_max = request.GET.get('monto_max', 1000000000)
 
     # Inicializar variables
     total_dias = 0
@@ -543,6 +799,7 @@ def income_scatter(request, venta_id):
     # Verificar si hay datos en el rango filtrado
     if not df_filtrado.empty:
         ax.scatter(df_filtrado['id'], df_filtrado['monto'], color='blue', label='Monto por Venta', alpha=0.9)
+
 
         # Agrupar montos por ID único
         unique_montos = df_filtrado.groupby('id')['monto'].mean().reset_index()
@@ -597,6 +854,8 @@ def income_scatter(request, venta_id):
                         rotation=90,
                         color='white')
 
+    
+
         
 
         # Calcular el monto total en el rango seleccionado
@@ -626,6 +885,15 @@ def income_scatter(request, venta_id):
 
         for item in venta_items:
             sub_total_variable_cost += item.get_variable_cost()
+
+         # Filtrar por rango de monto
+        # Filtrar por rango de monto
+        if monto_min:
+            df_filtrado = df_filtrado[df_filtrado['monto'] >= float(monto_min)]
+        if monto_max:
+            df_filtrado = df_filtrado[df_filtrado['monto'] <= float(monto_max)]
+
+            
 
 
         cantidad_neta_ventas = len(lista_ventas)
@@ -1142,27 +1410,77 @@ def income_histogram_amount(request, venta_id):
     # Eliminar duplicados y asegurarse de que haya suficientes datos
     df_filtrado = df_filtrado.drop_duplicates(subset=['id', 'monto'])
 
-    # Agrupar montos por fecha y calcular la suma de montos vendidos
-    df_filtrado['fecha'] = df_filtrado['datetime'].dt.date
+    # Crear la columna 'fecha' en el DataFrame original
+    df['fecha'] = df['datetime'].dt.date
+
+    # Agrupar montos por fecha y calcular la suma de montos vendidos (filtrado)
     frecuencias_montos = df_filtrado.groupby('fecha')['monto'].sum().reset_index(name='total_vendidos')
 
-    # Asegurarse de que la columna 'total_vendidos' sea float
-    frecuencias_montos['total_vendidos'] = frecuencias_montos['total_vendidos'].astype(float)
+    # Agrupar montos por fecha y calcular la suma de montos vendidos (sin filtrar)
+    frecuencias_montos_total = df.groupby('fecha')['monto'].sum().reset_index(name='total_vendidos')
 
     # Agrupar montos por gateway_payment
     distribucion_gateway = df_filtrado.groupby('payment_gateway')['monto'].sum().reset_index(name='total_vendido_gateway')
 
-    # Asegurarse de que la columna 'total_vendido_gateway' sea float
-    distribucion_gateway['total_vendido_gateway'] = distribucion_gateway['total_vendido_gateway'].astype(float)
+    # Agrupar montos por gateway_payment (sin filtrar)
+    distribucion_gateway_total = df.groupby('payment_gateway')['monto'].sum().reset_index(name='total_vendido_gateway_total')
+    # Convertir a un formato que usa columnas en lugar de filas
+    #distribucion_gateway_pivot = distribucion_gateway.pivot(index=None, columns='payment_gateway', values='total_vendido_gateway')
+    # Convertir a un diccionario para pasar a la plantilla
+    # Usar pivot_table para crear una tabla
+    distribucion_gateway_pivot = distribucion_gateway.pivot_table(index=None, columns='payment_gateway', values='total_vendido_gateway', aggfunc='sum', fill_value=0)
+    # Convertir a un diccionario para pasar a la plantilla
+    distribucion_gateway_dict = distribucion_gateway_pivot.to_dict(orient='records')
+
+    # Cálculo de estadísticas para los montos filtrados
+    estadisticas_filtradas = {
+        'promedio': frecuencias_montos['total_vendidos'].mean(),
+        'std_dev': frecuencias_montos['total_vendidos'].std(),
+        'mediana': frecuencias_montos['total_vendidos'].median(),
+        'maximo': frecuencias_montos['total_vendidos'].max(),
+        'minimo': frecuencias_montos['total_vendidos'].min(),
+        'stability': (frecuencias_montos['total_vendidos'].std() / frecuencias_montos['total_vendidos'].mean())*100 if frecuencias_montos['total_vendidos'].mean() != 0 else 0
+    }
+
+    # Cálculo de estadísticas para los montos sin filtrar
+    estadisticas_totales = {
+        'promedio': frecuencias_montos_total['total_vendidos'].mean(),
+        'std_dev': frecuencias_montos_total['total_vendidos'].std(),
+        'mediana': frecuencias_montos_total['total_vendidos'].median(),
+        'maximo': frecuencias_montos_total['total_vendidos'].max(),
+        'minimo': frecuencias_montos_total['total_vendidos'].min(),
+        'stability': (frecuencias_montos_total['total_vendidos'].std() / frecuencias_montos_total['total_vendidos'].mean())*100 if frecuencias_montos['total_vendidos'].mean() != 0 else 0
+    }
+
+    #Valores 
+
+    promedio_filtrado = frecuencias_montos['total_vendidos'].mean()
+    std_dev_filtrado = frecuencias_montos['total_vendidos'].std()
+    mediana_filtrado = frecuencias_montos['total_vendidos'].median()
+    maximo_filtrado = frecuencias_montos['total_vendidos'].max()
+    minimo_filtrado = frecuencias_montos['total_vendidos'].min()
+
+    promedio_total = frecuencias_montos_total['total_vendidos'].mean()
+    std_dev_total = frecuencias_montos_total['total_vendidos'].std()
+    mediana_total =  frecuencias_montos_total['total_vendidos'].median()
+    maximo_total= frecuencias_montos_total['total_vendidos'].max()
+    minimo_total = frecuencias_montos_total['total_vendidos'].min()
+
+    porcentaje_promedio =  (promedio_total/promedio_filtrado)*100
+
 
     # Crear figura y ejes (2 filas y 1 columna)
     fig, axs = plt.subplots(2, 1, figsize=(20, 16))
     fig.patch.set_facecolor('#161616')  # Color de fondo de la figura
 
-    # Histograma de total de montos vendidos por fecha
+    # Histograma de total de montos vendidos por fecha (filtrado)
     ax1 = axs[0]
     if not frecuencias_montos.empty:
-        bars1 = ax1.bar(frecuencias_montos['fecha'], frecuencias_montos['total_vendidos'], color='blue', alpha=0.7)
+        bars1 = ax1.bar(frecuencias_montos['fecha'], frecuencias_montos['total_vendidos'], color='blue', alpha=0.7, label='Filtrado')
+        
+        if not frecuencias_montos_total.empty:
+            bars2 = ax1.bar(frecuencias_montos_total['fecha'], frecuencias_montos_total['total_vendidos'], color='cyan', alpha=0.4, label='Total (Sin Filtrar)')
+
         ax1.set_title('Total de Montos Vendidos por Fecha', color='white')
         ax1.set_xlabel('Fecha', color='white')
         ax1.set_ylabel('Total Vendido', color='white')
@@ -1171,6 +1489,8 @@ def income_histogram_amount(request, venta_id):
 
         # Agregar etiquetas de los valores sobre las barras
         ax1.bar_label(bars1, label_type='edge', padding=3, color='white')
+        if not frecuencias_montos_total.empty:
+            ax1.bar_label(bars2, label_type='edge', padding=3, color='white')
 
         # Ajustar curva de tendencia
         x = np.arange(len(frecuencias_montos))
@@ -1178,24 +1498,39 @@ def income_histogram_amount(request, venta_id):
         p = np.polyval(z, x)
         ax1.plot(frecuencias_montos['fecha'], p, color='orange', label='Tendencia', linewidth=2)
 
-        # Estadísticas
-        promedio = frecuencias_montos['total_vendidos'].mean()
-        std_dev = frecuencias_montos['total_vendidos'].std()
-        mediana = frecuencias_montos['total_vendidos'].median()
-        maximo = frecuencias_montos['total_vendidos'].max()
-        minimo = frecuencias_montos['total_vendidos'].min()
+        # Calcular la pendiente
+        pendiente = z[0]  # La pendiente es el primer elemento de z
+
+# Interpretar la tendencia
+        if pendiente > 0:
+            tendencia_texto = "La tendencia está en aumento."
+        elif pendiente < 0:
+            tendencia_texto = "La tendencia está en disminución."
+        else:
+            tendencia_texto = "La tendencia es constante."
+
+# Añadir texto sobre la tendencia en la gráfica
+        ax1.text(0.05, 0.85, tendencia_texto, ha='left', va='top', fontsize=12, color='yellow', transform=ax1.transAxes)
 
         # Texto para la leyenda
         stats_text1 = (
-            f'Promedio: {promedio:.2f}\n'
-            f'Desviación Estándar: {std_dev:.2f}\n'
-            f'Mediana: {mediana:.2f}\n'
-            f'Máximo: {maximo:.2f}\n'
-            f'Mínimo: {minimo:.2f}'
+            f'Promedio (Filtrado): {estadisticas_filtradas["promedio"]:.2f}\n'
+            f'Desviación Estándar (Filtrado): {estadisticas_filtradas["std_dev"]:.2f}\n'
+            f'Mediana (Filtrado): {estadisticas_filtradas["mediana"]:.2f}\n'
+            f'Máximo (Filtrado): {estadisticas_filtradas["maximo"]:.2f}\n'
+            f'Mínimo (Filtrado): {estadisticas_filtradas["minimo"]:.2f}\n'
+            f'Promedio (Total): {estadisticas_totales["promedio"]:.2f}\n'
+            f'Desviación Estándar (Total): {estadisticas_totales["std_dev"]:.2f}\n'
+            f'Mediana (Total): {estadisticas_totales["mediana"]:.2f}\n'
+            f'Máximo (Total): {estadisticas_totales["maximo"]:.2f}\n'
+            f'Mínimo (Total): {estadisticas_totales["minimo"]:.2f}'
         )
         
         # Leyenda con estadísticas
         ax1.text(0.05, 0.97, stats_text1, ha='left', va='top', fontsize=12, color='white', transform=ax1.transAxes)
+
+        # Agregar la leyenda
+        ax1.legend(loc='upper left', fontsize=10)
 
     else:
         ax1.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
@@ -1206,7 +1541,12 @@ def income_histogram_amount(request, venta_id):
     # Histograma de distribución de montos por gateway_payment
     ax2 = axs[1]
     if not distribucion_gateway.empty:
-        bars2 = ax2.bar(distribucion_gateway['payment_gateway'], distribucion_gateway['total_vendido_gateway'], color='green', alpha=0.7)
+        bars2 = ax2.bar(distribucion_gateway['payment_gateway'], distribucion_gateway['total_vendido_gateway'], color='green', alpha=0.7, label='Filtrado')
+        
+        # Superponer datos totales
+        if not distribucion_gateway_total.empty:
+            bars2_total = ax2.bar(distribucion_gateway_total['payment_gateway'], distribucion_gateway_total['total_vendido_gateway_total'], color='lightgreen', alpha=0.4, label='Total (Sin Filtrar)')
+
         ax2.set_title('Distribución de Montos de Venta por Gateway Payment', color='white')
         ax2.set_xlabel('Gateway Payment', color='white')
         ax2.set_ylabel('Total Vendido', color='white')
@@ -1215,6 +1555,8 @@ def income_histogram_amount(request, venta_id):
 
         # Agregar etiquetas de los valores sobre las barras
         ax2.bar_label(bars2, label_type='edge', padding=3, color='white')
+        if not distribucion_gateway_total.empty:
+            ax2.bar_label(bars2_total, label_type='edge', padding=3, color='white')
 
         # Estadísticas
         promedio_gateway = distribucion_gateway['total_vendido_gateway'].mean()
@@ -1224,10 +1566,10 @@ def income_histogram_amount(request, venta_id):
 
         # Texto para la leyenda
         stats_text2 = (
-            f'Promedio: {promedio_gateway:.2f}\n'
-            f'Desviación Estándar: {std_dev_gateway:.2f}\n'
-            f'Máximo: {maximo_gateway:.2f}\n'
-            f'Mínimo: {minimo_gateway:.2f}'
+            f'Promedio (Filtrado): {promedio_gateway:.2f}\n'
+            f'Desviación Estándar (Filtrado): {std_dev_gateway:.2f}\n'
+            f'Máximo (Filtrado): {maximo_gateway:.2f}\n'
+            f'Mínimo (Filtrado): {minimo_gateway:.2f}'
         )
 
         # Leyenda con estadísticas
@@ -1257,13 +1599,435 @@ def income_histogram_amount(request, venta_id):
         'hora_inicio': hora_inicio,
         'fecha_fin': fecha_fin,
         'hora_fin': hora_fin,
+        'estadisticas_filtradas': estadisticas_filtradas,
+        'estadisticas_totales': estadisticas_totales,
+        'distribucion_gateway': distribucion_gateway,  # Agrega esta línea
+        'distribucion_gateway_total': distribucion_gateway_total,  
+        'porcentaje_promedio':porcentaje_promedio, 
     })
 
 
 
 @cache_page(60 * 1)  # Caché por 1 minuto
 @staff_member_required
+def income_histogram_amount_pdf(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Obtener el formulario y procesar la entrada
+    form = FiltroVentasForm(request.GET or None)
+
+    # Obtener los valores de fecha y hora del formulario
+    fecha_inicio = request.GET.get('fecha_inicio')
+    hora_inicio = request.GET.get('hora_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    hora_fin = request.GET.get('hora_fin')
+
+    # Obtener datos de ventas usando Django ORM
+    ventas = Venta.objects.all().values('id', 'fecha', 'hora', 'monto', 'payment_gateway')
+
+    # Convertir los datos a un DataFrame de pandas
+    df = pd.DataFrame(list(ventas))
+    
+    # Verificar si el DataFrame no está vacío
+    if df.empty:
+        return HttpResponse("No hay datos disponibles", status=204)
+
+    # Convertir la columna 'monto' a float si es decimal
+    df['monto'] = df['monto'].astype(float)
+
+    # Crear un datetime combinando fecha y hora
+    df['datetime'] = pd.to_datetime(df['fecha'].astype(str) + ' ' + df['hora'].astype(str))
+
+    # Filtrar por rango de fechas y horas
+    if fecha_inicio and hora_inicio and fecha_fin and hora_fin:
+        fecha_inicio_dt = pd.to_datetime(f"{fecha_inicio} {hora_inicio}")
+        fecha_fin_dt = pd.to_datetime(f"{fecha_fin} {hora_fin}")
+        df_filtrado = df[(df['datetime'] >= fecha_inicio_dt) & (df['datetime'] <= fecha_fin_dt)]
+    else:
+        df_filtrado = df
+
+    # Eliminar duplicados y asegurarse de que haya suficientes datos
+    df_filtrado = df_filtrado.drop_duplicates(subset=['id', 'monto'])
+
+    # Crear la columna 'fecha' en el DataFrame original
+    df['fecha'] = df['datetime'].dt.date
+
+    # Agrupar montos por fecha y calcular la suma de montos vendidos (filtrado)
+    frecuencias_montos = df_filtrado.groupby('fecha')['monto'].sum().reset_index(name='total_vendidos')
+
+    # Agrupar montos por fecha y calcular la suma de montos vendidos (sin filtrar)
+    frecuencias_montos_total = df.groupby('fecha')['monto'].sum().reset_index(name='total_vendidos')
+
+    # Agrupar montos por gateway_payment
+    distribucion_gateway = df_filtrado.groupby('payment_gateway')['monto'].sum().reset_index(name='total_vendido_gateway')
+
+    # Agrupar montos por gateway_payment (sin filtrar)
+    distribucion_gateway_total = df.groupby('payment_gateway')['monto'].sum().reset_index(name='total_vendido_gateway_total')
+
+    # Crear figura y ejes (2 filas y 1 columna)
+    fig, axs = plt.subplots(2, 1, figsize=(20, 16))
+    fig.patch.set_facecolor('#161616')  # Color de fondo de la figura
+
+    # Histograma de total de montos vendidos por fecha (filtrado)
+    ax1 = axs[0]
+    if not frecuencias_montos.empty:
+        bars1 = ax1.bar(frecuencias_montos['fecha'], frecuencias_montos['total_vendidos'], color='blue', alpha=0.7, label='Filtrado')
+        
+        if not frecuencias_montos_total.empty:
+            bars2 = ax1.bar(frecuencias_montos_total['fecha'], frecuencias_montos_total['total_vendidos'], color='cyan', alpha=0.4, label='Total (Sin Filtrar)')
+
+        ax1.set_title('Total de Montos Vendidos por Fecha', color='white')
+        ax1.set_xlabel('Fecha', color='white')
+        ax1.set_ylabel('Total Vendido', color='white')
+        ax1.set_xticks(frecuencias_montos['fecha'])
+        ax1.set_xticklabels(frecuencias_montos['fecha'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax1.bar_label(bars1, label_type='edge', padding=3, color='white')
+        if not frecuencias_montos_total.empty:
+            ax1.bar_label(bars2, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x = np.arange(len(frecuencias_montos))
+        z = np.polyfit(x, frecuencias_montos['total_vendidos'], 1)  # Ajuste lineal
+        p = np.polyval(z, x)
+        ax1.plot(frecuencias_montos['fecha'], p, color='orange', label='Tendencia', linewidth=2)
+
+        # Texto para la leyenda
+        stats_text1 = (
+            f'Promedio: {frecuencias_montos["total_vendidos"].mean():.2f}\n'
+            f'Desviación Estándar: {frecuencias_montos["total_vendidos"].std():.2f}\n'
+            f'Mediana: {frecuencias_montos["total_vendidos"].median():.2f}\n'
+            f'Máximo: {frecuencias_montos["total_vendidos"].max():.2f}\n'
+            f'Mínimo: {frecuencias_montos["total_vendidos"].min():.2f}'
+        )
+        
+        # Leyenda con estadísticas
+        ax1.text(0.05, 0.97, stats_text1, ha='left', va='top', fontsize=12, color='white', transform=ax1.transAxes)
+
+        # Agregar la leyenda
+        ax1.legend(loc='upper left', fontsize=10)
+
+    else:
+        ax1.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax1.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax1.set_facecolor('#161616')  # Color de fondo del eje
+
+    # Histograma de distribución de montos por gateway_payment
+    ax2 = axs[1]
+    if not distribucion_gateway.empty:
+        bars2 = ax2.bar(distribucion_gateway['payment_gateway'], distribucion_gateway['total_vendido_gateway'], color='green', alpha=0.7, label='Filtrado')
+        
+        # Superponer datos totales
+        if not distribucion_gateway_total.empty:
+            bars2_total = ax2.bar(distribucion_gateway_total['payment_gateway'], distribucion_gateway_total['total_vendido_gateway_total'], color='lightgreen', alpha=0.4, label='Total (Sin Filtrar)')
+
+        ax2.set_title('Distribución de Montos de Venta por Gateway Payment', color='white')
+        ax2.set_xlabel('Gateway Payment', color='white')
+        ax2.set_ylabel('Total Vendido', color='white')
+        ax2.set_xticks(distribucion_gateway['payment_gateway'])
+        ax2.set_xticklabels(distribucion_gateway['payment_gateway'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax2.bar_label(bars2, label_type='edge', padding=3, color='white')
+        if not distribucion_gateway_total.empty:
+            ax2.bar_label(bars2_total, label_type='edge', padding=3, color='white')
+
+        # Estadísticas
+        promedio_gateway = distribucion_gateway['total_vendido_gateway'].mean()
+        std_dev_gateway = distribucion_gateway['total_vendido_gateway'].std()
+        maximo_gateway = distribucion_gateway['total_vendido_gateway'].max()
+        minimo_gateway = distribucion_gateway['total_vendido_gateway'].min()
+
+        # Texto para la leyenda
+        stats_text2 = (
+            f'Promedio: {promedio_gateway:.2f}\n'
+            f'Desviación Estándar: {std_dev_gateway:.2f}\n'
+            f'Máximo: {maximo_gateway:.2f}\n'
+            f'Mínimo: {minimo_gateway:.2f}'
+        )
+
+        # Leyenda con estadísticas
+        ax2.text(0.05, 0.97, stats_text2, ha='left', va='top', fontsize=12, color='white', transform=ax2.transAxes)
+
+    else:
+        ax2.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax2.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax2.set_facecolor('#161616')  # Color de fondo del eje
+
+    plt.tight_layout()
+
+            # Generación del código QR
+    usuario = {
+        'nombre': 'Juan Pérez',
+        'email': 'juan.perez@example.com',
+        'telefono': '123456789'
+    }
+    
+    data = f"Nombre: {usuario['nombre']}, Email: {usuario['email']}, Teléfono: {usuario['telefono']}"
+    qr = qrcode.QRCode(version=3, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=2, border=4)
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img_qr = qr.make_image(fill_color="black", back_color="#f2f2f2")
+    buffer_qr = BytesIO()
+    img_qr.save(buffer_qr, format='PNG')
+    buffer_qr.seek(0)
+    qr_img_str = base64.b64encode(buffer_qr.read()).decode()
+
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png', facecolor=fig.get_facecolor())
+    buf.seek(0)
+    plt.close(fig)
+
+    image_data = buf.getvalue()
+    grafico_montos = base64.b64encode(image_data).decode('utf-8')
+
+    html = render_to_string('admin/businessmodel/ventas/reportes/income_histogram_pdf.html',
+                            {
+                                'venta': venta,
+                                'grafico_montos': grafico_montos,
+                                'qr_img_str': qr_img_str,
+                                'form': form,
+                                'fecha_inicio': fecha_inicio,
+                                'hora_inicio': hora_inicio,
+                                'fecha_fin': fecha_fin,
+                                'hora_fin': hora_fin,
+
+                            })
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename=metricas_comprobante_{}.pdf'.format(venta.id)
+
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response,
+        stylesheets=[weasyprint.CSS('businessmodel/static/css/comprobante_metricas_venta.css')],
+        presentational_hints=True)
+
+    return response
+
+
+
+
+
+@cache_page(60 * 1)  # Caché por 1 minuto
+@staff_member_required
 def income_histogram_product(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Obtener el formulario y procesar la entrada
+    form = FiltroVentasForm(request.GET or None)
+
+    # Obtener los valores de fecha y hora del formulario
+    fecha_inicio = request.GET.get('fecha_inicio')
+    hora_inicio = request.GET.get('hora_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    hora_fin = request.GET.get('hora_fin')
+
+    # Obtener datos de ventas usando Django ORM
+    ventas = Venta.objects.all().values('id', 'fecha', 'hora', 'monto')
+
+    # Convertir los datos a un DataFrame de pandas
+    df = pd.DataFrame(list(ventas))
+
+    # Verificar si el DataFrame no está vacío
+    if df.empty:
+        return HttpResponse("No hay datos disponibles", status=204)
+
+    # Crear un datetime combinando fecha y hora
+    df['datetime'] = pd.to_datetime(df['fecha'].astype(str) + ' ' + df['hora'].astype(str))
+
+    # Filtrar por rango de fechas y horas
+    if fecha_inicio and hora_inicio and fecha_fin and hora_fin:
+        fecha_inicio_dt = pd.to_datetime(f"{fecha_inicio} {hora_inicio}")
+        fecha_fin_dt = pd.to_datetime(f"{fecha_fin} {hora_fin}")
+        df_filtrado = df[(df['datetime'] >= fecha_inicio_dt) & (df['datetime'] <= fecha_fin_dt)]
+    else:
+        df_filtrado = df
+
+
+    # Eliminar duplicados y asegurarse de que haya suficientes datos
+    df_filtrado = df_filtrado.drop_duplicates(subset=['id', 'monto'])
+
+    # Agrupar productos vendidos por fecha
+    df_productos = VentaItem.objects.filter(venta__in=df_filtrado['id']).values('product', 'venta__fecha', 'venta__hora', 'venta__monto')
+    df_productos = pd.DataFrame(list(df_productos))
+
+    # Calcular la cantidad de productos y montos totales
+    if not df_productos.empty:
+        df_productos['fecha'] = pd.to_datetime(df_productos['venta__fecha']).dt.date
+
+        # Cantidad de productos vendidos
+        cantidad_productos_vendidos = df_productos['product'].nunique()
+        
+        # Frecuencia de productos vendidos por fecha
+        frecuencias_productos = df_productos.groupby('fecha')['product'].count().reset_index(name='cantidad_productos_vendidos')
+
+        # Total de monto vendido por producto
+        monto_por_producto = df_productos.groupby(['product', 'fecha']).agg(total_monto_vendido=('venta__monto', 'sum')).reset_index()
+        ventas_por_producto = df_productos.groupby(['product', 'fecha']).size().reset_index(name='numero_ventas')
+      
+
+        # Datos totales (sin filtrar)
+        monto_por_producto_total = df_productos.groupby(['product'])['venta__monto'].sum().reset_index(name='total_monto_vendido_total')
+        ventas_totales = df_productos.groupby(['product']).size().reset_index(name='numero_ventas_totales')
+
+    else:
+        cantidad_productos_vendidos = 0
+        frecuencias_productos = pd.DataFrame(columns=['fecha', 'cantidad_productos_vendidos'])
+        monto_por_producto = pd.DataFrame(columns=['product', 'fecha', 'total_monto_vendido'])
+        ventas_por_producto = pd.DataFrame(columns=['product', 'fecha', 'numero_ventas'])
+
+        monto_por_producto_total = pd.DataFrame(columns=['product', 'total_monto_vendido_total'])
+        ventas_totales = pd.DataFrame(columns=['product', 'numero_ventas_totales'])
+
+    # Crear figura y ejes (3 filas y 1 columna)
+    fig, axs = plt.subplots(3, 1, figsize=(20, 24))
+    fig.patch.set_facecolor('#161616')  # Color de fondo de la figura
+
+    # Histograma de frecuencia de productos vendidos por fecha
+    ax1 = axs[0]
+    if not frecuencias_productos.empty:
+        bars1 = ax1.bar(frecuencias_productos['fecha'], frecuencias_productos['cantidad_productos_vendidos'], color='green', alpha=0.7, label='Filtrado')
+        ax1.set_title('Frecuencia de Productos Vendidos por Fecha', color='white')
+        ax1.set_xlabel('Fecha', color='white')
+        ax1.set_ylabel('Frecuencia de Productos Vendidos', color='white')
+        ax1.set_xticks(frecuencias_productos['fecha'])
+        ax1.set_xticklabels(frecuencias_productos['fecha'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax1.bar_label(bars1, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x_products = np.arange(len(frecuencias_productos))
+        z_products = np.polyfit(x_products, frecuencias_productos['cantidad_productos_vendidos'].astype(float), 1)
+        p_products = np.polyval(z_products, x_products)
+        ax1.plot(frecuencias_productos['fecha'], p_products, color='orange', label='Tendencia Filtrada', linewidth=2)
+
+        # Datos totales
+        bars_total = ax1.bar(frecuencias_productos['fecha'], df_productos.groupby('fecha')['product'].count(), color='lightgreen', alpha=0.5, label='Total (Sin Filtrar)')
+        ax1.bar_label(bars_total, label_type='edge', padding=3, color='black')
+
+        # Estadísticas
+        std_dev_productos = frecuencias_productos['cantidad_productos_vendidos'].astype(float).std()
+        stats_text1 = (
+            f"Total de productos vendidos: {cantidad_productos_vendidos}\n"
+            f"Promedio: {frecuencias_productos['cantidad_productos_vendidos'].mean():.2f}\n"
+            f"Desviación Estándar: {std_dev_productos:.2f}\n"
+            f"Mediana: {frecuencias_productos['cantidad_productos_vendidos'].median():.2f}\n"
+            f"Máximo: {frecuencias_productos['cantidad_productos_vendidos'].max():.2f}\n"
+            f"Mínimo: {frecuencias_productos['cantidad_productos_vendidos'].min():.2f}"
+        )
+        ax1.legend(title=stats_text1, fontsize='small')
+    else:
+        ax1.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax1.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax1.set_facecolor('#161616')  # Color de fondo del eje
+
+    # Histograma de número de ventas por producto
+    ax2 = axs[1]
+    if not ventas_por_producto.empty:
+        bars2 = ax2.bar(ventas_por_producto['product'], ventas_por_producto['numero_ventas'], color='blue', alpha=0.7, label='Filtrado')
+        ax2.set_title('Número de Ventas por Producto', color='white')
+        ax2.set_xlabel('Producto', color='white')
+        ax2.set_ylabel('Número de Ventas', color='white')
+        ax2.set_xticks(ventas_por_producto['product'])
+        ax2.set_xticklabels(ventas_por_producto['product'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax2.bar_label(bars2, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x_sales = np.arange(len(ventas_por_producto))
+        z_sales = np.polyfit(x_sales, ventas_por_producto['numero_ventas'].astype(float), 1)
+        p_sales = np.polyval(z_sales, x_sales)
+        ax2.plot(ventas_por_producto['product'], p_sales, color='orange', label='Tendencia Filtrada', linewidth=2)
+
+        # Datos totales
+        bars_total = ax2.bar(ventas_totales['product'], ventas_totales['numero_ventas_totales'], color='lightblue', alpha=0.5, label='Total (Sin Filtrar)')
+        ax2.bar_label(bars_total, label_type='edge', padding=3, color='black')
+
+        # Estadísticas
+        std_dev_ventas = ventas_por_producto['numero_ventas'].astype(float).std()
+        stats_text2 = (
+            f"Promedio: {ventas_por_producto['numero_ventas'].mean():.2f}\n"
+            f"Desviación Estándar: {std_dev_ventas:.2f}\n"
+            f"Mediana: {ventas_por_producto['numero_ventas'].median():.2f}\n"
+            f"Máximo: {ventas_por_producto['numero_ventas'].max():.2f}\n"
+            f"Mínimo: {ventas_por_producto['numero_ventas'].min():.2f}"
+        )
+        ax2.legend(title=stats_text2, fontsize='small')
+    else:
+        ax2.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax2.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax2.set_facecolor('#161616')  # Color de fondo del eje
+
+    # Histograma de monto vendido por nombre de producto
+    ax3 = axs[2]
+    if not monto_por_producto.empty:
+        bars3 = ax3.bar(monto_por_producto['product'], monto_por_producto['total_monto_vendido'], color='purple', alpha=0.7, label='Filtrado')
+        ax3.set_title('Monto Vendido por Nombre de Producto', color='white')
+        ax3.set_xlabel('Producto', color='white')
+        ax3.set_ylabel('Total Monto Vendido', color='white')
+        ax3.set_xticks(monto_por_producto['product'])
+        ax3.set_xticklabels(monto_por_producto['product'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax3.bar_label(bars3, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x_amount = np.arange(len(monto_por_producto))
+        z_amount = np.polyfit(x_amount, monto_por_producto['total_monto_vendido'].astype(float), 1)
+        p_amount = np.polyval(z_amount, x_amount)
+        ax3.plot(monto_por_producto['product'], p_amount, color='orange', label='Tendencia Filtrada', linewidth=2)
+
+        # Datos totales
+        bars_total = ax3.bar(monto_por_producto_total['product'], monto_por_producto_total['total_monto_vendido_total'], color='red', alpha=0.5, label='Total (Sin Filtrar)')
+        ax3.bar_label(bars_total, label_type='edge', padding=3, color='black')
+
+        # Estadísticas
+        std_dev_monto = monto_por_producto['total_monto_vendido'].astype(float).std()
+        stats_text3 = (
+            f"Promedio: {monto_por_producto['total_monto_vendido'].mean():.2f}\n"
+            f"Desviación Estándar: {std_dev_monto:.2f}\n"
+            f"Mediana: {monto_por_producto['total_monto_vendido'].median():.2f}\n"
+            f"Máximo: {monto_por_producto['total_monto_vendido'].max():.2f}\n"
+            f"Mínimo: {monto_por_producto['total_monto_vendido'].min():.2f}"
+        )
+        ax3.legend(title=stats_text3, fontsize='small')
+    else:
+        ax3.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax3.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax3.set_facecolor('#161616')  # Color de fondo del eje
+
+    plt.tight_layout()
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png', facecolor=fig.get_facecolor())
+    buf.seek(0)
+    plt.close(fig)
+
+    image_data = buf.getvalue()
+    grafico_productos = base64.b64encode(image_data).decode('utf-8')
+
+    return render(request, 'admin/businessmodel/Sales/tools/histogram-incomes/product/sales_frequency.html', {
+        'venta': venta,
+        'grafico_productos': grafico_productos,
+        'form': form,
+        'fecha_inicio': fecha_inicio,
+        'hora_inicio': hora_inicio,
+        'fecha_fin': fecha_fin,
+        'hora_fin': hora_fin,
+    })
+
+
+@cache_page(60 * 1)  # Caché por 1 minuto
+@staff_member_required
+def income_histogram_product_pdf(request, venta_id):
     venta = get_object_or_404(Venta, id=venta_id)
 
     # Obtener el formulario y procesar la entrada
@@ -1303,10 +2067,14 @@ def income_histogram_product(request, venta_id):
     df_productos = VentaItem.objects.filter(venta__in=df_filtrado['id']).values('product', 'venta__fecha', 'venta__hora', 'venta__monto')
     df_productos = pd.DataFrame(list(df_productos))
 
+    # Calcular la cantidad de productos y montos totales
     if not df_productos.empty:
         df_productos['fecha'] = pd.to_datetime(df_productos['venta__fecha']).dt.date
 
-        # Frecuencia de productos vendidos
+        # Cantidad de productos vendidos
+        cantidad_productos_vendidos = df_productos['product'].nunique()
+        
+        # Frecuencia de productos vendidos por fecha
         frecuencias_productos = df_productos.groupby('fecha')['product'].count().reset_index(name='cantidad_productos_vendidos')
 
         # Total de monto vendido por producto
@@ -1314,6 +2082,7 @@ def income_histogram_product(request, venta_id):
         ventas_por_producto = df_productos.groupby(['product', 'fecha']).size().reset_index(name='numero_ventas')
 
     else:
+        cantidad_productos_vendidos = 0
         frecuencias_productos = pd.DataFrame(columns=['fecha', 'cantidad_productos_vendidos'])
         monto_por_producto = pd.DataFrame(columns=['product', 'fecha', 'total_monto_vendido'])
         ventas_por_producto = pd.DataFrame(columns=['product', 'fecha', 'numero_ventas'])
@@ -1344,6 +2113,7 @@ def income_histogram_product(request, venta_id):
         # Estadísticas
         std_dev_productos = frecuencias_productos['cantidad_productos_vendidos'].astype(float).std()
         stats_text1 = (
+            f"Total de productos vendidos: {cantidad_productos_vendidos}\n"
             f"Promedio: {frecuencias_productos['cantidad_productos_vendidos'].mean():.2f}\n"
             f"Desviación Estándar: {std_dev_productos:.2f}\n"
             f"Mediana: {frecuencias_productos['cantidad_productos_vendidos'].median():.2f}\n"
@@ -1351,6 +2121,8 @@ def income_histogram_product(request, venta_id):
             f"Mínimo: {frecuencias_productos['cantidad_productos_vendidos'].min():.2f}"
         )
         ax1.legend(title=stats_text1, fontsize='small')
+
+        
 
     else:
         ax1.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
@@ -1432,6 +2204,24 @@ def income_histogram_product(request, venta_id):
 
     plt.tight_layout()
 
+    usuario = {
+        'nombre': 'Juan Pérez',
+        'email': 'juan.perez@example.com',
+        'telefono': '123456789'
+    }
+
+    data = f"Nombre: {usuario['nombre']}, Email: {usuario['email']}, Teléfono: {usuario['telefono']}"
+    qr = qrcode.QRCode(version=3, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=2, border=4)
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img_qr = qr.make_image(fill_color="black", back_color="#f2f2f2")
+    buffer_qr = BytesIO()
+    img_qr.save(buffer_qr, format='PNG')
+    buffer_qr.seek(0)
+
+    qr_img_str = base64.b64encode(buffer_qr.read()).decode()
+
     buf = BytesIO()
     plt.savefig(buf, format='png', facecolor=fig.get_facecolor())
     buf.seek(0)
@@ -1440,16 +2230,28 @@ def income_histogram_product(request, venta_id):
     image_data = buf.getvalue()
     grafico_productos = base64.b64encode(image_data).decode('utf-8')
 
-    return render(request, 'admin/businessmodel/Sales/tools/histogram-incomes/product/sales_frequency.html', {
-        'venta': venta,
-        'grafico_productos': grafico_productos,
-        'form': form,
-        'fecha_inicio': fecha_inicio,
-        'hora_inicio': hora_inicio,
-        'fecha_fin': fecha_fin,
-        'hora_fin': hora_fin,
-    })
+    html = render_to_string('admin/businessmodel/ventas/reportes/income_histogram_product_pdf.html',
+                            {
+                                'venta': venta,
+                                'grafico_productos': grafico_productos,
+                                'qr_img_str': qr_img_str,
+                                'form': form,
+                                'fecha_inicio': fecha_inicio,
+                                'hora_inicio': hora_inicio,
+                                'fecha_fin': fecha_fin,
+                                'hora_fin': hora_fin,
+                                'cantidad_productos_vendidos': cantidad_productos_vendidos,
+                                'monto_por_producto':monto_por_producto ,
 
+                            })
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename=metricas_comprobante_{}.pdf'.format(venta.id)
+
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response,
+        stylesheets=[weasyprint.CSS('businessmodel/static/css/comprobante_metricas_venta.css')],
+        presentational_hints=True)
+
+    return response
 
 @cache_page(60 * 1)  # Caché por 1 minuto
 @staff_member_required
@@ -1496,15 +2298,28 @@ def income_histogram_category(request, venta_id):
     if not df_categorias.empty:
         df_categorias['fecha'] = pd.to_datetime(df_categorias['venta__fecha']).dt.date
 
-        # Total de monto vendido por categoría
+        # Total de monto vendido por categoría (filtrado)
         monto_por_categoria = df_categorias.groupby(['product__category']).agg(total_monto_vendido=('venta__monto', 'sum')).reset_index()
+        
+        # Total de monto vendido por categoría (sin filtrar)
+        df_categorias_total = VentaItem.objects.filter(venta__in=df['id']).values('product__category', 'venta__monto')
+        df_categorias_total = pd.DataFrame(list(df_categorias_total))
+        monto_por_categoria_total = df_categorias_total.groupby(['product__category']).agg(total_monto_vendido=('venta__monto', 'sum')).reset_index()
+
+        # Número de ventas por categoría (filtrado)
         ventas_por_categoria = df_categorias.groupby(['product__category']).size().reset_index(name='numero_ventas')
+
+        # Número de ventas por categoría (sin filtrar)
+        ventas_por_categoria_total = df_categorias_total.groupby(['product__category']).size().reset_index(name='numero_ventas')
+
+        # Frecuencia de categorías vendidas
         frecuencias_categorias = df_categorias.groupby('fecha')['product__category'].value_counts().reset_index(name='cantidad_categorias_vendidas')
 
     else:
         frecuencias_categorias = pd.DataFrame(columns=['fecha', 'cantidad_categorias_vendidas'])
         monto_por_categoria = pd.DataFrame(columns=['product__category', 'total_monto_vendido'])
         ventas_por_categoria = pd.DataFrame(columns=['product__category', 'numero_ventas'])
+        ventas_por_categoria_total = pd.DataFrame(columns=['product__category', 'numero_ventas'])
 
     # Crear figura y ejes
     fig, axs = plt.subplots(3, 1, figsize=(20, 24))
@@ -1517,7 +2332,12 @@ def income_histogram_category(request, venta_id):
     ax1 = axs[0]
     if not monto_por_categoria.empty:
         bars1 = ax1.bar(monto_por_categoria['product__category'], monto_por_categoria['total_monto_vendido'],
-                         color=colores_categorias[:len(monto_por_categoria)], alpha=0.7)
+                         color=colores_categorias[:len(monto_por_categoria)], alpha=0.7, label='Filtrado')
+        
+        if not monto_por_categoria_total.empty:
+            bars2 = ax1.bar(monto_por_categoria_total['product__category'], monto_por_categoria_total['total_monto_vendido'],
+                             color='cyan', alpha=0.4, label='Total (Sin Filtrar)')
+
         ax1.set_title('Monto Vendido por Categoría', color='white')
         ax1.set_xlabel('Categoría', color='white')
         ax1.set_ylabel('Total Monto Vendido', color='white')
@@ -1526,6 +2346,8 @@ def income_histogram_category(request, venta_id):
 
         # Agregar etiquetas de los valores sobre las barras
         ax1.bar_label(bars1, label_type='edge', padding=3, color='white')
+        if not monto_por_categoria_total.empty:
+            ax1.bar_label(bars2, label_type='edge', padding=3, color='white')
 
         # Ajustar curva de tendencia
         x_amount = np.arange(len(monto_por_categoria))
@@ -1553,7 +2375,13 @@ def income_histogram_category(request, venta_id):
     ax2 = axs[1]
     if not ventas_por_categoria.empty:
         bars2 = ax2.bar(ventas_por_categoria['product__category'], ventas_por_categoria['numero_ventas'],
-                         color=colores_categorias[:len(ventas_por_categoria['numero_ventas'])], alpha=0.7)
+                         color=colores_categorias[:len(ventas_por_categoria['numero_ventas'])], alpha=0.7, label='Filtrado')
+        
+        # Superponer los datos totales
+        if not ventas_por_categoria_total.empty:
+            bars2_total = ax2.bar(ventas_por_categoria_total['product__category'], ventas_por_categoria_total['numero_ventas'],
+                                   color='cyan', alpha=0.4, label='Total (Sin Filtrar)')
+
         ax2.set_title('Número de Ventas por Categoría', color='white')
         ax2.set_xlabel('Categoría', color='white')
         ax2.set_ylabel('Número de Ventas', color='white')
@@ -1562,6 +2390,8 @@ def income_histogram_category(request, venta_id):
 
         # Agregar etiquetas de los valores sobre las barras
         ax2.bar_label(bars2, label_type='edge', padding=3, color='white')
+        if not ventas_por_categoria_total.empty:
+            ax2.bar_label(bars2_total, label_type='edge', padding=3, color='white')
 
         # Ajustar curva de tendencia
         x_sales = np.arange(len(ventas_por_categoria))
@@ -1633,6 +2463,233 @@ def income_histogram_category(request, venta_id):
         'hora_fin': hora_fin,
     })
 
+
+
+@cache_page(60 * 1)  # Caché por 1 minuto
+@staff_member_required
+def income_histogram_category_pdf(request, venta_id):
+    venta = get_object_or_404(Venta, id=venta_id)
+
+    # Obtener el formulario y procesar la entrada
+    form = FiltroVentasForm(request.GET or None)
+
+    # Obtener los valores de fecha y hora del formulario
+    fecha_inicio = request.GET.get('fecha_inicio')
+    hora_inicio = request.GET.get('hora_inicio')
+    fecha_fin = request.GET.get('fecha_fin')
+    hora_fin = request.GET.get('hora_fin')
+
+    # Obtener datos de ventas usando Django ORM
+    ventas = Venta.objects.all().values('id', 'fecha', 'hora', 'monto')
+
+    # Convertir los datos a un DataFrame de pandas
+    df = pd.DataFrame(list(ventas))
+
+    # Verificar si el DataFrame no está vacío
+    if df.empty:
+        return HttpResponse("No hay datos disponibles", status=204)
+
+    # Crear un datetime combinando fecha y hora
+    df['datetime'] = pd.to_datetime(df['fecha'].astype(str) + ' ' + df['hora'].astype(str))
+
+    # Filtrar por rango de fechas y horas
+    if fecha_inicio and hora_inicio and fecha_fin and hora_fin:
+        fecha_inicio_dt = pd.to_datetime(f"{fecha_inicio} {hora_inicio}")
+        fecha_fin_dt = pd.to_datetime(f"{fecha_fin} {hora_fin}")
+        df_filtrado = df[(df['datetime'] >= fecha_inicio_dt) & (df['datetime'] <= fecha_fin_dt)]
+    else:
+        df_filtrado = df
+
+    # Eliminar duplicados y asegurarse de que haya suficientes datos
+    df_filtrado = df_filtrado.drop_duplicates(subset=['id', 'monto'])
+
+    # Agrupar productos vendidos por fecha
+    df_productos = VentaItem.objects.filter(venta__in=df_filtrado['id']).values('product', 'venta__fecha', 'venta__hora', 'venta__monto')
+    df_productos = pd.DataFrame(list(df_productos))
+
+    # Calcular la cantidad de productos y montos totales
+    if not df_productos.empty:
+        df_productos['fecha'] = pd.to_datetime(df_productos['venta__fecha']).dt.date
+
+        # Cantidad de productos vendidos
+        cantidad_productos_vendidos = df_productos['product'].nunique()
+        
+        # Frecuencia de productos vendidos por fecha
+        frecuencias_productos = df_productos.groupby('fecha')['product'].count().reset_index(name='cantidad_productos_vendidos')
+
+        # Total de monto vendido por producto
+        monto_por_producto = df_productos.groupby(['product', 'fecha']).agg(total_monto_vendido=('venta__monto', 'sum')).reset_index()
+        ventas_por_producto = df_productos.groupby(['product', 'fecha']).size().reset_index(name='numero_ventas')
+
+    else:
+        cantidad_productos_vendidos = 0
+        frecuencias_productos = pd.DataFrame(columns=['fecha', 'cantidad_productos_vendidos'])
+        monto_por_producto = pd.DataFrame(columns=['product', 'fecha', 'total_monto_vendido'])
+        ventas_por_producto = pd.DataFrame(columns=['product', 'fecha', 'numero_ventas'])
+
+    # Crear figura y ejes (3 filas y 1 columna)
+    fig, axs = plt.subplots(3, 1, figsize=(20, 24))
+    fig.patch.set_facecolor('#161616')  # Color de fondo de la figura
+
+    # Histograma de frecuencia de productos vendidos por fecha
+    ax1 = axs[0]
+    if not frecuencias_productos.empty:
+        bars1 = ax1.bar(frecuencias_productos['fecha'], frecuencias_productos['cantidad_productos_vendidos'], color='green', alpha=0.7)
+        ax1.set_title('Frecuencia de Productos Vendidos por Fecha', color='white')
+        ax1.set_xlabel('Fecha', color='white')
+        ax1.set_ylabel('Frecuencia de Productos Vendidos', color='white')
+        ax1.set_xticks(frecuencias_productos['fecha'])
+        ax1.set_xticklabels(frecuencias_productos['fecha'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax1.bar_label(bars1, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x_products = np.arange(len(frecuencias_productos))
+        z_products = np.polyfit(x_products, frecuencias_productos['cantidad_productos_vendidos'].astype(float), 1)
+        p_products = np.polyval(z_products, x_products)
+        ax1.plot(frecuencias_productos['fecha'], p_products, color='orange', label='Tendencia', linewidth=2)
+
+        # Estadísticas
+        std_dev_productos = frecuencias_productos['cantidad_productos_vendidos'].astype(float).std()
+        stats_text1 = (
+            f"Total de productos vendidos: {cantidad_productos_vendidos}\n"
+            f"Promedio: {frecuencias_productos['cantidad_productos_vendidos'].mean():.2f}\n"
+            f"Desviación Estándar: {std_dev_productos:.2f}\n"
+            f"Mediana: {frecuencias_productos['cantidad_productos_vendidos'].median():.2f}\n"
+            f"Máximo: {frecuencias_productos['cantidad_productos_vendidos'].max():.2f}\n"
+            f"Mínimo: {frecuencias_productos['cantidad_productos_vendidos'].min():.2f}"
+        )
+        ax1.legend(title=stats_text1, fontsize='small')
+
+        
+
+    else:
+        ax1.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax1.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax1.set_facecolor('#161616')  # Color de fondo del eje
+
+    # Histograma de número de ventas por producto
+    ax2 = axs[1]
+    if not ventas_por_producto.empty:
+        bars2 = ax2.bar(ventas_por_producto['product'], ventas_por_producto['numero_ventas'], color='blue', alpha=0.7)
+        ax2.set_title('Número de Ventas por Producto', color='white')
+        ax2.set_xlabel('Producto', color='white')
+        ax2.set_ylabel('Número de Ventas', color='white')
+        ax2.set_xticks(ventas_por_producto['product'])
+        ax2.set_xticklabels(ventas_por_producto['product'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax2.bar_label(bars2, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x_sales = np.arange(len(ventas_por_producto))
+        z_sales = np.polyfit(x_sales, ventas_por_producto['numero_ventas'].astype(float), 1)
+        p_sales = np.polyval(z_sales, x_sales)
+        ax2.plot(ventas_por_producto['product'], p_sales, color='orange', label='Tendencia', linewidth=2)
+
+        # Estadísticas
+        std_dev_ventas = ventas_por_producto['numero_ventas'].astype(float).std()
+        stats_text2 = (
+            f"Promedio: {ventas_por_producto['numero_ventas'].mean():.2f}\n"
+            f"Desviación Estándar: {std_dev_ventas:.2f}\n"
+            f"Mediana: {ventas_por_producto['numero_ventas'].median():.2f}\n"
+            f"Máximo: {ventas_por_producto['numero_ventas'].max():.2f}\n"
+            f"Mínimo: {ventas_por_producto['numero_ventas'].min():.2f}"
+        )
+        ax2.legend(title=stats_text2, fontsize='small')
+
+    else:
+        ax2.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax2.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax2.set_facecolor('#161616')  # Color de fondo del eje
+
+    # Histograma de monto vendido por nombre de producto
+    ax3 = axs[2]
+    if not monto_por_producto.empty:
+        bars3 = ax3.bar(monto_por_producto['product'], monto_por_producto['total_monto_vendido'], color='purple', alpha=0.7)
+        ax3.set_title('Monto Vendido por Nombre de Producto', color='white')
+        ax3.set_xlabel('Producto', color='white')
+        ax3.set_ylabel('Total Monto Vendido', color='white')
+        ax3.set_xticks(monto_por_producto['product'])
+        ax3.set_xticklabels(monto_por_producto['product'], rotation=45, ha='right', color='white', fontsize=8)
+
+        # Agregar etiquetas de los valores sobre las barras
+        ax3.bar_label(bars3, label_type='edge', padding=3, color='white')
+
+        # Ajustar curva de tendencia
+        x_amount = np.arange(len(monto_por_producto))
+        z_amount = np.polyfit(x_amount, monto_por_producto['total_monto_vendido'].astype(float), 1)
+        p_amount = np.polyval(z_amount, x_amount)
+        ax3.plot(monto_por_producto['product'], p_amount, color='orange', label='Tendencia', linewidth=2)
+
+        # Estadísticas
+        std_dev_monto = monto_por_producto['total_monto_vendido'].astype(float).std()
+        stats_text3 = (
+            f"Promedio: {monto_por_producto['total_monto_vendido'].mean():.2f}\n"
+            f"Desviación Estándar: {std_dev_monto:.2f}\n"
+            f"Mediana: {monto_por_producto['total_monto_vendido'].median():.2f}\n"
+            f"Máximo: {monto_por_producto['total_monto_vendido'].max():.2f}\n"
+            f"Mínimo: {monto_por_producto['total_monto_vendido'].min():.2f}"
+        )
+        ax3.legend(title=stats_text3, fontsize='small')
+
+    else:
+        ax3.set_title('No hay suficientes datos para mostrar el gráfico.', color='white')
+
+    ax3.grid(color='white', linestyle='--', linewidth=0.5, alpha=0.5)
+    ax3.set_facecolor('#161616')  # Color de fondo del eje
+
+    plt.tight_layout()
+
+    usuario = {
+        'nombre': 'Juan Pérez',
+        'email': 'juan.perez@example.com',
+        'telefono': '123456789'
+    }
+
+    data = f"Nombre: {usuario['nombre']}, Email: {usuario['email']}, Teléfono: {usuario['telefono']}"
+    qr = qrcode.QRCode(version=3, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=2, border=4)
+    qr.add_data(data)
+    qr.make(fit=True)
+
+    img_qr = qr.make_image(fill_color="black", back_color="#f2f2f2")
+    buffer_qr = BytesIO()
+    img_qr.save(buffer_qr, format='PNG')
+    buffer_qr.seek(0)
+
+    qr_img_str = base64.b64encode(buffer_qr.read()).decode()
+
+    buf = BytesIO()
+    plt.savefig(buf, format='png', facecolor=fig.get_facecolor())
+    buf.seek(0)
+    plt.close(fig)
+
+    image_data = buf.getvalue()
+    grafico_productos = base64.b64encode(image_data).decode('utf-8')
+
+    html = render_to_string('admin/businessmodel/ventas/reportes/income_histogram_category_pdf.html',
+                            {
+                                'venta': venta,
+                                'grafico_productos': grafico_productos,
+                                'qr_img_str': qr_img_str,
+                                'form': form,
+                                'fecha_inicio': fecha_inicio,
+                                'hora_inicio': hora_inicio,
+                                'fecha_fin': fecha_fin,
+                                'hora_fin': hora_fin,
+
+                            })
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename=metricas_comprobante_{}.pdf'.format(venta.id)
+
+    weasyprint.HTML(string=html, base_url=request.build_absolute_uri()).write_pdf(response,
+        stylesheets=[weasyprint.CSS('businessmodel/static/css/comprobante_metricas_venta.css')],
+        presentational_hints=True)
+
+    return response
 
 
 @staff_member_required
